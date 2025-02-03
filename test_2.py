@@ -1,10 +1,14 @@
-# Load model directly
+from typing import List
+import json
+import time
 from transformers import AutoTokenizer, AutoModelForCausalLM, DynamicCache
 import torch
+
 
 llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 temperature = 0.7
 max_length = 10000
+num_responses = 100
 # llm_name = "Qwen/Qwen2.5-1.5B"
 
 tokenizer = AutoTokenizer.from_pretrained(llm_name)
@@ -37,56 +41,64 @@ How can they cross the river without anything being eaten?
 # Question: Summarize this in one sentence.
 # """
 
+responses: List[str] = []
 
-# Prepare initial input
-input_ids = tokenizer.encode(f"{question}", return_tensors="pt").to(model.device)
-cache = None
+start_time = time.time()
+for i in range(num_responses):
+    # Prepare initial input
+    input_ids = tokenizer.encode(f"{question}", return_tensors="pt").to(model.device)
+    cache = None
+    # Generate one token at a time
+    while True:
+        # Generate next token using forward pass
 
-# Generate one token at a time
-while True:
-    # Generate next token using forward pass
-    with torch.no_grad():
-        outputs = model(
-            input_ids=input_ids if cache is None else input_ids[:, -1:],
-            past_key_values=cache,
-            use_cache=True,
-        )
+        with torch.no_grad():
+            outputs = model(
+                input_ids=input_ids if cache is None else input_ids[:, -1:],
+                past_key_values=cache,
+                use_cache=True,
+            )
 
-    # Get logits and updated past key values
-    if cache is None:
-        print("\n--------------------------------\n")
-    next_token_logits = outputs.logits[:, -1, :]
-    cache = DynamicCache.from_legacy_cache(outputs.past_key_values)
+        # Get logits and updated past key values
+        if cache is None:
+            print("\n--------------------------------\n")
+        next_token_logits = outputs.logits[:, -1, :]
+        cache = DynamicCache.from_legacy_cache(outputs.past_key_values)
 
-    # Sample next token
-    probs = torch.nn.functional.softmax(next_token_logits / temperature, dim=-1)
+        # Sample next token
+        probs = torch.nn.functional.softmax(next_token_logits / temperature, dim=-1)
 
-    # Sort probabilities in descending order
-    sorted_probs, sorted_indices = torch.sort(probs, descending=True)
-    cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+        # Sort probabilities in descending order
+        sorted_probs, sorted_indices = torch.sort(probs, descending=True)
+        cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
 
-    # Create nucleus mask
-    nucleus_mask = cumulative_probs <= 0.95
-    nucleus_mask[..., 1:] = nucleus_mask[..., :-1].clone()
-    nucleus_mask[..., 0] = True
+        # Create nucleus mask
+        nucleus_mask = cumulative_probs <= 0.95
+        nucleus_mask[..., 1:] = nucleus_mask[..., :-1].clone()
+        nucleus_mask[..., 0] = True
 
-    # Apply mask and renormalize
-    sorted_probs[~nucleus_mask] = 0
-    sorted_probs = sorted_probs / sorted_probs.sum()
+        # Apply mask and renormalize
+        sorted_probs[~nucleus_mask] = 0
+        sorted_probs = sorted_probs / sorted_probs.sum()
 
-    # Sample from filtered distribution
-    next_token_idx = torch.multinomial(sorted_probs, num_samples=1)
-    next_token = sorted_indices[0, next_token_idx]
+        # Sample from filtered distribution
+        next_token_idx = torch.multinomial(sorted_probs, num_samples=1)
+        next_token = sorted_indices[0, next_token_idx]
 
-    # Print the new token
+        # Print the new token
 
-    print(tokenizer.decode(next_token[0], skip_special_tokens=True), end='', flush=True)
+        print(tokenizer.decode(next_token[0], skip_special_tokens=True), end='', flush=True)
 
-    # Break if we hit the end token or max length
-    if next_token[0] == tokenizer.eos_token_id or input_ids.shape[1] >= max_length:
-        break
+        # Break if we hit the end token or max length
+        if next_token[0] == tokenizer.eos_token_id or input_ids.shape[1] >= max_length:
+            break
 
-    # Update input_ids for next iteration
-    input_ids = torch.cat([input_ids, next_token], dim=-1)
+        # Update input_ids for next iteration
+        input_ids = torch.cat([input_ids, next_token], dim=-1)
 
-print()  # New line after generation is complete
+    responses.append(tokenizer.decode(input_ids[0], skip_special_tokens=True))
+
+    print(f"\nTime taken for response {i + 1}: {time.time() - start_time} seconds\n\n")
+
+with open("responses.json", "w") as f:
+    json.dump(responses, f)
