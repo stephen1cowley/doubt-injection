@@ -15,20 +15,20 @@ model = model.to("cuda" if torch.cuda.is_available() else "cpu")  # Move model t
 print(f"Model dtype: {model.dtype}")
 print(f"First layer dtype: {next(model.parameters()).dtype}")
 
-question = """
-A farmer with a wolf, a goat, and a cabbage must cross a river by boat.
-The boat can carry only the farmer and a single item.
-If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
-How can they cross the river without anything being eaten?
-"""
-
 # question = """
-# A farmer with a a goat must cross a river by boat.
-# On the other side of the river, there is a wolf and cabbage.
+# A farmer with a wolf, a goat, and a cabbage must cross a river by boat.
 # The boat can carry only the farmer and a single item.
 # If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
 # How can they cross the river without anything being eaten?
 # """
+
+question = """
+A farmer with a a goat must cross a river by boat.
+On the other side of the river, there is a wolf and cabbage.
+The boat can carry only the farmer and a single item.
+If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
+How can they cross the river without anything being eaten?
+"""
 
 # question = """
 # Puzzle:
