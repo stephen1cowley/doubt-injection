@@ -102,5 +102,5 @@ for i in range(num_responses):
 
     print(f"\nTime taken for response {i + 1}: {time.time() - start_time} seconds\n\n")
 
-with open("responses_7B_10k.json", "w") as f:
+with open(f"responses_7B_10k_{time.time()}.json", "w") as f:
     json.dump(responses, f)
