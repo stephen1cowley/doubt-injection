@@ -7,8 +7,8 @@ import torch
 
 llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
 temperature = 0.7
-max_length = 10000
-num_responses = 2
+max_length = 15000
+num_responses = 1
 # llm_name = "Qwen/Qwen2.5-1.5B"
 
 tokenizer = AutoTokenizer.from_pretrained(llm_name)
@@ -31,7 +31,7 @@ A farmer and a goat are on the left side of a river and must cross by boat.
 On the right side of the river, there is a wolf and a cabbage.
 The boat can carry only the farmer and a single item.
 If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
-How can the farmer get the goat across the river without anything being eaten?
+How can the farmer get the goat to the right side of the river without anything being eaten?
 """
 
 # question = """
@@ -49,7 +49,7 @@ for i in range(num_responses):
     # Prepare initial input
     input_ids = tokenizer.encode(f"{question}", return_tensors="pt").to(model.device)
     cache = None
-    
+
     # Generate one token at a time
     while True:
         # Generate next token using forward pass
