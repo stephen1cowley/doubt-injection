@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DynamicCache
 import torch
 
 
-llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 temperature = 0.7
 max_length = 10000
 num_responses = 4
@@ -27,8 +27,8 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # """
 
 question = """
-A farmer and a goat are on one side of a river, and must cross to the other side.
-On the other side of the river, there is a wolf and a cabbage.
+A farmer and a goat are on the left side of a river and must cross by boat.
+On the right side of the river, there is a wolf and a cabbage.
 The boat can carry only the farmer and a single item.
 If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
 How can the farmer get the goat across the river without anything being eaten?
