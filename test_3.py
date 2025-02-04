@@ -8,7 +8,7 @@ import torch
 llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
 temperature = 0.7
 max_length = 10000
-num_responses = 4
+num_responses = 2
 # llm_name = "Qwen/Qwen2.5-1.5B"
 
 tokenizer = AutoTokenizer.from_pretrained(llm_name)
@@ -102,5 +102,5 @@ for i in range(num_responses):
 
     print(f"\nTime taken for response {i + 1}: {time.time() - start_time} seconds\n\n")
 
-with open(f"responses_7B_10k_{time.time()}.json", "w") as f:
+with open(f"responses/responses_7B_10k_{time.time()}.json", "w") as f:
     json.dump(responses, f)
