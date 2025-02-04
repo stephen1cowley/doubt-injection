@@ -5,9 +5,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DynamicCache
 import torch
 
 
-llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 temperature = 0.7
-max_length = 10000
+max_length = 1000
 num_responses = 4
 # llm_name = "Qwen/Qwen2.5-1.5B"
 
@@ -49,7 +49,7 @@ for i in range(num_responses):
     # Prepare initial input
     input_ids = tokenizer.encode(f"{question}", return_tensors="pt").to(model.device)
     cache = None
-    
+
     # Generate one token at a time
     while True:
         # Generate next token using forward pass
