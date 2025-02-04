@@ -27,11 +27,11 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # """
 
 question = """
-A farmer with a a goat must cross a river by boat.
-On the other side of the river, there is a wolf and cabbage.
+A farmer and a goat are on one side of a river, and must cross to the other side.
+On the other side of the river, there is a wolf and a cabbage.
 The boat can carry only the farmer and a single item.
 If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
-How can they cross the river without anything being eaten?
+How can the farmer get the goat across the river without anything being eaten?
 """
 
 # question = """
