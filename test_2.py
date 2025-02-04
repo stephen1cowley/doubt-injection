@@ -8,7 +8,7 @@ import torch
 llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
 temperature = 0.7
 max_length = 10000
-num_responses = 5
+num_responses = 4
 # llm_name = "Qwen/Qwen2.5-1.5B"
 
 tokenizer = AutoTokenizer.from_pretrained(llm_name)
