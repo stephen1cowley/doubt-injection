@@ -8,7 +8,7 @@ import torch
 llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
 temperature = 0.7
 max_length = 10000
-num_responses = 100
+num_responses = 5
 # llm_name = "Qwen/Qwen2.5-1.5B"
 
 tokenizer = AutoTokenizer.from_pretrained(llm_name)
@@ -43,11 +43,13 @@ How can they cross the river without anything being eaten?
 
 responses: List[str] = []
 
-start_time = time.time()
+
 for i in range(num_responses):
+    start_time = time.time()
     # Prepare initial input
     input_ids = tokenizer.encode(f"{question}", return_tensors="pt").to(model.device)
     cache = None
+    
     # Generate one token at a time
     while True:
         # Generate next token using forward pass
@@ -100,5 +102,5 @@ for i in range(num_responses):
 
     print(f"\nTime taken for response {i + 1}: {time.time() - start_time} seconds\n\n")
 
-with open("responses.json", "w") as f:
+with open("responses_7B_10k.json", "w") as f:
     json.dump(responses, f)
