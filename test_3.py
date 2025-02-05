@@ -45,12 +45,16 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # """
 
 question = """
+<|im_start|>user
 A man and a goat are on one side of a river.
 There is a wolf and a cabbage on the other side.
 The man has a boat.
 The boat can carry only the farmer and a single item.
 How can the farmer get the goat to the other side of the river?
+<|im_end|>
+<|im_start|>assistant
 """
+
 
 responses: List[str] = []
 
