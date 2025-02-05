@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DynamicCache
 import torch
 
 
-llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
+llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 temperature = 0.7
 max_length = 15000
 num_responses = 1
@@ -45,14 +45,12 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # """
 
 question = """
-<|im_start|>user
-A man and a goat are on one side of a river.
+User: A man and a goat are on one side of a river.
 There is a wolf and a cabbage on the other side.
 The man has a boat.
 The boat can carry only the farmer and a single item.
 How can the farmer get the goat to the other side of the river?
-<|im_end|>
-<|im_start|>assistant
+Assistant:
 """
 
 
