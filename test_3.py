@@ -26,20 +26,31 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # How can they cross the river without anything being eaten?
 # """
 
-question = """
-A farmer and a goat are on the left side of a river and must cross by boat.
-On the right side of the river, there is a wolf and a cabbage.
-The boat can carry only the farmer and a single item.
-If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
-How can the farmer get the goat to the right side of the river without anything being eaten?
-"""
+# question = """
+# A farmer and a goat are on the left side of a river and must cross by boat.
+# On the right side of the river, there is a wolf and a cabbage.
+# The boat can carry only the farmer and a single item.
+# If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
+# How can the farmer get the goat to the right side of the river without anything being eaten?
+# """
 
 # question = """
-# Puzzle:
-# A man pushes his car to a hotel.
-# He immediately knows he must pay the owner.
-# Question: Summarize this in one sentence.
+# The following is a classic puzzle:
+# A man and a goat are on one side of a river.
+# There is a wolf and a cabbage on the other side.
+# The man has a boat.
+# The boat can carry only the farmer and a single item.
+# If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage.
+# How can the farmer get the goat to the other side of the river without anything being eaten?
 # """
+
+question = """
+A man and a goat are on one side of a river.
+There is a wolf and a cabbage on the other side.
+The man has a boat.
+The boat can carry only the farmer and a single item.
+How can the farmer get the goat to the other side of the river?
+"""
 
 responses: List[str] = []
 
