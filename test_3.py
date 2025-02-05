@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DynamicCache
 import torch
 
 
-llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
 temperature = 0.7
 max_length = 15000
 num_responses = 1
