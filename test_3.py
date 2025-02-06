@@ -44,13 +44,22 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # How can the farmer get the goat to the other side of the river without anything being eaten?
 # """
 
+# Prompt used in first test of 100 runs
+# question = """
+# User: A man and a goat are on one side of a river.
+# There is a wolf and a cabbage on the other side.
+# The man has a boat.
+# The boat can carry only the farmer and a single item.
+# How can the farmer get the goat to the other side of the river?
+# Assistant: """
+
+# Prompt used in second test of 100 runs
 question = """
-User: A man and a goat are on one side of a river.
-There is a wolf and a cabbage on the other side.
+A man and a goat are on the left side of a river.
+There is a wolf and a cabbage on the right side of the river.
 The man has a boat.
 The boat can carry only the farmer and a single item.
-How can the farmer get the goat to the other side of the river?
-Assistant: """
+How can the farmer get the goat to the other side of the river?"""
 
 
 responses: List[str] = []
