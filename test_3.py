@@ -59,7 +59,7 @@ A man and a goat are on the left side of a river.
 There is a wolf and a cabbage on the right side of the river.
 The man has a boat.
 The boat can carry only the farmer and a single item.
-How can the farmer get the goat to the other side of the river?"""
+How can the farmer get the goat to the other side of the river? """
 
 
 responses: List[str] = []
