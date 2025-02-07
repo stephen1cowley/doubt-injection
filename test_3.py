@@ -54,12 +54,22 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 # Assistant: """
 
 # Prompt used in second test of 100 runs
+# question = """
+# A man and a goat are on the left side of a river.
+# There is a wolf and a cabbage on the right side of the river.
+# The man has a boat.
+# The boat can carry only the farmer and a single item.
+# How can the farmer get the goat to the other side of the river? """
+
+# Prompt used in third test of 100 runs
 question = """
-A man and a goat are on the left side of a river.
+A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> answer here </answer>. User:
+Solve the following puzzle: A man and a goat are on the left side of a river.
 There is a wolf and a cabbage on the right side of the river.
 The man has a boat.
 The boat can carry only the farmer and a single item.
-How can the farmer get the goat to the other side of the river? """
+How can the farmer get the goat to the right side of the river?
+Assistant: """
 
 
 responses: List[str] = []
