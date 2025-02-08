@@ -6,7 +6,7 @@ import torch
 
 
 llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
-temperature = 1.1
+temperature = 1.5
 max_length = 20000
 num_responses = 1
 # llm_name = "Qwen/Qwen2.5-1.5B"
