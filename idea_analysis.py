@@ -2,7 +2,7 @@ from typing import List
 import json
 import os
 
-idea_files: List[str] = os.listdir("ideas")
+idea_files: List[str] = sorted(os.listdir("ideas"))
 results: List[List[int]] = [[0 for _ in range(10)] for _ in range(5)]
 
 for i in range(5):
