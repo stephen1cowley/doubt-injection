@@ -6,6 +6,16 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
+question = """
+A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> answer here </answer>. User:
+Solve the following puzzle: A man and a goat are on the left side of a river.
+There is a wolf and a cabbage on the right side of the river.
+The man has a boat.
+The boat can carry only the farmer and a single item.
+How can the farmer get the goat to the right side of the river?
+Assistant: """
+
+
 IDEAS_LIST = [
     "'the farmer returning alone'",
     "'the setup in the classic version being different'",
@@ -49,7 +59,7 @@ print(f"Model dtype: {model.dtype}")
 print(f"First layer dtype: {next(model.parameters()).dtype}")
 
 
-response_files: List[str] = os.listdir("responses")[-250:]
+response_files: List[str] = sorted(os.listdir("responses"))[-250:]
 
 
 for response_file in response_files:
@@ -59,6 +69,7 @@ for response_file in response_files:
     # Read last response
     with open("responses/" + response_file, 'r') as f:
         response: str = json.load(f)[0]
+        response = response[len(question):]
 
     # Split up into N characters with overlap
     chunk_size = 500
@@ -76,14 +87,14 @@ for response_file in response_files:
             print("\n\n--------------------------------------")
 
             prompt = f"""
-Given the following passage, give an answer which is either 'true' or 'false'.
+You must read and answer a question about the passage that follows. The answer given must either be 'yes' or 'no'.
 Passage:
 
 {chunks[i]}
 
 (end of passage)
-Did the passage contain mention of {IDEAS_LIST[idea_id]}?
-Answer (true/false): """
+Question: Does the passage contain explicit mention of {IDEAS_LIST[idea_id]}?
+Answer (yes/no): """
 
             input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
             output = model.generate(
@@ -95,11 +106,11 @@ Answer (true/false): """
             ans = tokenizer.decode(output[0], skip_special_tokens=True)[len(prompt):]
             print("\n ANS:", ans)
 
-            if "true" in ans:
+            if "yes" in ans:
                 ideas[idea_id] = True
                 break
 
-    with open(f"ideas/ideas_{response_file}.json", "w") as f:
+    with open(f"ideas/ideas_{response_file}", "w") as f:
         json.dump(ideas, f)
 
     print(f"Reponse took {time.time() - time_0}")
