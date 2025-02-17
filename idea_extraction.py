@@ -34,6 +34,10 @@ def make_coherent(
     remove_start: bool = True
 ) -> str:
     "Trim the text chunk to start at a new sentence and finish at the end of a sentence"
+    # Return empty string if chunk is empty
+    if not chunk:
+        return ""
+
     end_chars = [".", "\n"]
     # End at a logical end
     if remove_end:
@@ -62,7 +66,7 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 with open("log_file.txt", 'r') as f:
     log_file: int = int(f.read())
 
-response_files: List[str] = sorted(os.listdir("responses"))[-50*log_file:]
+response_files: List[str] = sorted(os.listdir("responses"))[-50*log_file:-50*(log_file-1)]
 with open("log_file.txt", 'w') as f:
     f.write(str(log_file+1))
 
