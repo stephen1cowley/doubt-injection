@@ -59,7 +59,12 @@ print(f"Model dtype: {model.dtype}")
 print(f"First layer dtype: {next(model.parameters()).dtype}")
 
 
-response_files: List[str] = sorted(os.listdir("responses"))[-250:]
+with open("log_file.txt", 'r') as f:
+    log_file: int = int(f.read())
+
+response_files: List[str] = sorted(os.listdir("responses"))[-50*log_file:]
+with open("log_file.txt", 'w') as f:
+    f.write(str(log_file+1))
 
 n = 0
 for response_file in response_files:
@@ -84,10 +89,8 @@ for response_file in response_files:
             if chunks[i] == "":
                 continue
 
-            print("\n\n--------------------------------------")
-
             prompt = f"""
-You must read and answer a question about the passage that follows. The answer given must either be 'yes' or 'no'.
+You must carefully read and answer a question about the passage that follows. The answer given must either be 'yes' or 'no'.
 Passage:
 
 {chunks[i]}
@@ -99,12 +102,13 @@ Answer (yes/no): """
             input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
             output = model.generate(
                 input_ids,
-                max_new_tokens=1
+                max_new_tokens=1,
+                temperature=0.0
             )
 
-            print(tokenizer.decode(output[0], skip_special_tokens=True))
-            ans = tokenizer.decode(output[0], skip_special_tokens=True)[len(prompt):]
-            print("\n ANS:", ans)
+            out_text = tokenizer.decode(output[0], skip_special_tokens=True)
+            print("\n\n--------------------------------------\n", out_text)
+            ans = out_text[len(prompt):]
 
             if "yes" in ans:
                 ideas[idea_id] = True
