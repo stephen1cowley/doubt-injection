@@ -3,6 +3,7 @@ import json
 import os
 
 idea_files: List[str] = sorted(os.listdir("ideas"))
+print(len(idea_files))
 results: List[List[int]] = [[0 for _ in range(10)] for _ in range(5)]
 
 for i in range(5):

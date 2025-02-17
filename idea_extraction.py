@@ -61,7 +61,7 @@ print(f"First layer dtype: {next(model.parameters()).dtype}")
 
 response_files: List[str] = sorted(os.listdir("responses"))[-250:]
 
-
+n = 0
 for response_file in response_files:
     time_0 = time.time()
     ideas: List[bool] = [False] * len(IDEAS_LIST)
@@ -113,4 +113,6 @@ Answer (yes/no): """
     with open(f"ideas/ideas_{response_file}", "w") as f:
         json.dump(ideas, f)
 
-    print(f"Reponse took {time.time() - time_0}")
+    print(response_file)
+    print(f"{n} ###### Reponse took {time.time() - time_0}")
+    n += 1
