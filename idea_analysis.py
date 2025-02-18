@@ -5,6 +5,11 @@ import os
 idea_files: List[str] = sorted(os.listdir("ideas"))
 print(len(idea_files))
 
+# Remove files that end in `.json.json`
+idea_files = [file for file in idea_files if not file.endswith(".json.json")]
+idea_files = idea_files[50:]
+print(len(idea_files))
+
 results: List[List[int]] = [[0 for _ in range(10)] for _ in range(5)]
 
 for i in range(5):
