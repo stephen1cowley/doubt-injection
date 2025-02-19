@@ -55,6 +55,7 @@ for question_id in range(num_questions):
     print(llm_prompt)
 
     for temperature in temperatures:
+        time_0 = time.time()
         input_ids: torch.Tensor = tokenizer.encode(llm_prompt, return_tensors="pt").to(model.device)
         cache = None
 
@@ -135,6 +136,7 @@ for question_id in range(num_questions):
 
         print(f"LLM answer at temperature {result.temperature}: {result.llm_answer}")
         print(f"Correct answer: {result.correct_answer}")
+        print(f"Time taken: {time.time() - time_0:.2f} seconds")
         print("\n--------------------------------\n")
 
 # Save results to JSON file with timestamp
