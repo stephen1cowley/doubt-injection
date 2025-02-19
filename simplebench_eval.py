@@ -18,10 +18,9 @@ class ExperimentResult:
     prompt_name: str
 
 
-llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
 temperatures: List[float] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
-temperatures: List[float] = [0.0]
-max_length: int = 20000
+max_length: int = 10000
 top_p: float = 0.95
 prompt_name: str = "simplebench_deepseek.txt"
 
