@@ -1,2 +1,3 @@
-*.json
+responses/*.json
 *.out
+machine.file.*
