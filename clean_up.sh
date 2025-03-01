@@ -4,4 +4,6 @@ find . -name "*.out" -exec cp {} outputs/ \;
 # Copy all machine.file.* files to outputs directory
 find . -name "machine.file.*" -exec cp {} outputs/ \;
 
+git stash
+git pull
 chmod +x *.sh *.wilkes3 /sbatch/*.sh /sbatch/*.wilkes3
