@@ -38,7 +38,7 @@ def main():
     args = parse_args()
     llm_name: str = args.llm_name
     temperatures: List[float] = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
-    max_length: int = 10000
+    max_length: int = 5000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
     question_id: int = args.q_id - 1
