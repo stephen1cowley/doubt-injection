@@ -24,7 +24,7 @@ for file in files:
             # Handle case where doubt_injection_prob key doesn't exist
             doubt_injection_prob = str(0.0)
             if "doubt_injection_prob" in result:
-                doubt_injection_prob = str(result["doubt_injection_prob"])
+                continue
 
             # Handle case where temperature key doesn't exist
             if "temperature" not in result:
