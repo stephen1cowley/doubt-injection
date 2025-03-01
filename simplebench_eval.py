@@ -1,7 +1,9 @@
 from typing import List, Dict
+import os
 import json
 import torch
 import time
+import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM, DynamicCache
 from dataclasses import dataclass, asdict
 
@@ -18,39 +20,81 @@ class ExperimentResult:
     prompt_name: str
 
 
-llm_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
-temperatures: List[float] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
-max_length: int = 10000
-top_p: float = 0.95
-prompt_name: str = "simplebench_deepseek.txt"
+def parse_args():
+    parser = argparse.ArgumentParser(description='Evaluate SimpleBench questions')
+    parser.add_argument('--q_id', type=int, default=1,
+                        help='Question ID to evaluate')
+    parser.add_argument('--doubt_injection', type=bool, default=False,
+                        help='Whether to inject doubt into the response')
+    parser.add_argument('--llm_name', type=str,
+                        default="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+                        help='LLM name or path')
+    parser.add_argument('--prompt_name', type=str,
+                        default="simplebench_deepseek.txt",
+                        help='Prompt name')
+    return parser.parse_args()
 
-# Load questions
-with open("simplebench/simplebench.json", "r") as f:
-    questions: List[Dict[str, str]] = json.load(f)["eval_data"]
-    num_questions = len(questions)
-    print(f"Number of simplebench questions: {num_questions}")
 
-# Load prompt
-with open(f"prompts/{prompt_name}", "r") as f:
-    prompt: str = f.read()
+def main():
+    args = parse_args()
+    llm_name: str = args.llm_name
+    temperatures: List[float] = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+    max_length: int = 10000
+    top_p: float = 0.95
+    prompt_name: str = args.prompt_name
+    question_id: int = args.q_id
 
-# Load model
-tokenizer = AutoTokenizer.from_pretrained(llm_name)
-model = AutoModelForCausalLM.from_pretrained(llm_name, torch_dtype=torch.bfloat16)
-model = model.to("cuda" if torch.cuda.is_available() else "cpu")  # Move model to GPU if available
+    # Load questions
+    with open("simplebench/simplebench.json", "r") as f:
+        questions: List[Dict[str, str]] = json.load(f)["eval_data"]
+        num_questions = len(questions)
+        print(f"Number of simplebench questions: {num_questions}")
 
-# Check model
-print(f"Model: {llm_name}")
-print(f"Model dtype: {model.dtype}")
+    # Determine the question to evaluate to be the one with the least number of responses so far
+    q_counts = [0] * num_questions
+    for file in os.listdir("responses"):
+        if file.endswith(".json"):
+            if file.startswith("results_q"):
+                question_id = int(file.split("_q")[1].split("_")[0])
+                q_counts[question_id - 1] += 1
 
-# Initialize results list
-results: List[ExperimentResult] = []
+    question_id = q_counts.index(min(q_counts)) + 1
 
-# Evaluate
-for question_id in range(num_questions):
+    # Load prompt
+    with open(f"prompts/{prompt_name}", "r") as f:
+        prompt: str = f.read()
+
+    # Load model
+    tokenizer = AutoTokenizer.from_pretrained(llm_name)
+
+    # Solving the issue when multiple processes try to download the model at the same time
+    max_retries = 6
+    base_wait_time = 2  # seconds
+    for attempt in range(max_retries):
+        try:
+            model = AutoModelForCausalLM.from_pretrained(llm_name, torch_dtype=torch.bfloat16)
+            break
+        except FileExistsError:
+            if attempt == max_retries - 1:
+                raise  # Re-raise the error if we've exhausted all retries
+            # Exponential backoff: 2s, 4s, 8s, 16s...
+            wait_time = base_wait_time * (2 ** attempt)
+            print(f"Symlink already exists, waiting {wait_time}s before retry {attempt + 1}/"
+                  f"{max_retries}")
+            time.sleep(wait_time)
+
+    model = model.to("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Check model
+    print(f"Model: {llm_name}")
+    print(f"Model dtype: {model.dtype}")
+
+    # Initialize results list
+    results: List[ExperimentResult] = []
+
+    # Evaluate
     question: str = questions[question_id]["prompt"]
     answer: str = questions[question_id]["answer"]
-
     llm_prompt: str = prompt.format(question=question)
     print(llm_prompt)
 
@@ -73,7 +117,7 @@ for question_id in range(num_questions):
             if cache is None:
                 print("\n--------------------------------\n")
             next_token_logits = outputs.logits[:, -1, :]
-            cache = DynamicCache.from_legacy_cache(outputs.past_key_values)
+            cache = DynamicCache.from_legacy_cache(outputs.past_key_values)  # type: ignore
 
             # Sample next token
             if temperature == 0.0:
@@ -139,12 +183,17 @@ for question_id in range(num_questions):
         print(f"Time taken: {time.time() - time_0:.2f} seconds")
         print("\n--------------------------------\n")
 
-# Save results to JSON file with timestamp
-timestamp = int(time.time())
-output_filename = f"responses/results_{timestamp}.json"
-with open(output_filename, "w") as f:
-    # Convert dataclass objects to dictionaries
-    json_results = [asdict(result) for result in results]
-    json.dump(json_results, f, indent=2)
+    # Save results to JSON file with timestamp
+    timestamp = int(time.time())
+    output_filename = f"responses/results_q{str(question_id)}_{str(int(timestamp))}.json"
+    with open(output_filename, "w") as f:
+        # Convert dataclass objects to dictionaries
+        json_results = [asdict(result) for result in results]
+        json.dump(json_results, f, indent=2)
 
-print(f"Results saved to {output_filename}")
+    print(f"Results saved to {output_filename}")
+    results = []
+
+
+if __name__ == "__main__":
+    main()
