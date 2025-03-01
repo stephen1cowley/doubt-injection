@@ -23,7 +23,7 @@ for file in files:
         for result in results:
             # Handle case where doubt_injection_prob key doesn't exist
             doubt_injection_prob = str(0.0)
-            if "doubt_injection_prob" in result:
+            if "doubt_injection_prob" not in result:
                 continue
 
             # Handle case where temperature key doesn't exist
