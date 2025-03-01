@@ -30,9 +30,9 @@ cd sbatch
 
 
 ## TODO
-- Results evaluator for simplebench json files, by scanning the `os.listdir` of `/responses`
 - 50 responses at each temperature for DeepSeek on 10 simplebench questions
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
 - Get working Doubt Injector -- ensure works locally
+- Results evaluator for simplebench json files, by scanning the `os.listdir` of `/responses`
