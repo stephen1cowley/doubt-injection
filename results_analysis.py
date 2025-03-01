@@ -21,7 +21,10 @@ for file in files:
         results: List[dict] = json.load(f)
 
         for result in results:
-            doubt_injection_prob = str(result["doubt_injection_prob"])
+            if not result["doubt_injection_prob"]:
+                doubt_injection_prob = str(0.0)
+            else:
+                doubt_injection_prob = str(result["doubt_injection_prob"])
             temperature = str(result["temperature"])
 
             # Initialize nested dictionaries if they don't exist
