@@ -1,5 +1,4 @@
 from typing import List, Dict
-import os
 import json
 import torch
 import time
@@ -42,23 +41,13 @@ def main():
     max_length: int = 10000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
-    question_id: int = args.q_id
+    question_id: int = args.q_id - 1
 
     # Load questions
     with open("simplebench/simplebench.json", "r") as f:
         questions: List[Dict[str, str]] = json.load(f)["eval_data"]
         num_questions = len(questions)
         print(f"Number of simplebench questions: {num_questions}")
-
-    # Determine the question to evaluate to be the one with the least number of responses so far
-    q_counts = [0] * num_questions
-    for file in os.listdir("responses"):
-        if file.endswith(".json"):
-            if file.startswith("results_q"):
-                question_id = int(file.split("_q")[1].split("_")[0])
-                q_counts[question_id - 1] += 1
-
-    question_id = q_counts.index(min(q_counts)) + 1
 
     # Load prompt
     with open(f"prompts/{prompt_name}", "r") as f:
