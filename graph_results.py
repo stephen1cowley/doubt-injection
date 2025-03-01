@@ -13,7 +13,10 @@ plt.figure(figsize=(12, 8))
 with open("results_summary.json", "r") as f:
     results_summary: Dict[str, Dict[str, Tuple[int, int]]] = json.load(f)
 
-    for doubt_injection_prob in results_summary:
+    # Sort doubt injection probabilities first
+    sorted_probs = sorted(results_summary.keys(), key=float)
+
+    for doubt_injection_prob in sorted_probs:
         temperatures = []
         accuracy = []
         for temperature in results_summary[doubt_injection_prob]:
@@ -25,7 +28,7 @@ with open("results_summary.json", "r") as f:
         temperatures, accuracy = zip(*sorted(zip(temperatures, accuracy)))
 
         plt.plot(temperatures, accuracy,
-                 label=f"Doubt Injection Prob: {doubt_injection_prob}",
+                 label=f"{float(doubt_injection_prob):.1f}",  # Simplified legend
                  color=plt.cm.jet(float(doubt_injection_prob)))  # pyright: ignore
 
 plt.xlabel("Temperature")
