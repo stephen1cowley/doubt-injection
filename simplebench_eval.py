@@ -23,8 +23,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate SimpleBench questions')
     parser.add_argument('--q_id', type=int, default=1,
                         help='Question ID to evaluate')
-    parser.add_argument('--doubt_injection', type=bool, default=False,
-                        help='Whether to inject doubt into the response')
+    parser.add_argument('--doubt_injection', type=int, default=0,
+                        help='0-10 probability to inject doubt into the response')
     parser.add_argument('--llm_name', type=str,
                         default="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
                         help='LLM name or path')
@@ -87,26 +87,35 @@ def main():
     llm_prompt: str = prompt.format(question=question)
     print(llm_prompt)
 
+    # Set doubtful statement
+    if args.doubt_injection:
+        doubtful_statement: str = "But wait, let me think again. "
+        doubtful_statement_ids: torch.Tensor = tokenizer.encode(
+            doubtful_statement, return_tensors="pt").to(model.device)
+
+        doubtful_prefix: List[str] = [".\n\n", " \n\n", "\n\n",  ". \n\n"]
+
     for temperature in temperatures:
         time_0 = time.time()
         input_ids: torch.Tensor = tokenizer.encode(llm_prompt, return_tensors="pt").to(model.device)
-        cache = None
+        # Initialize cache to be empty each response -- save memory
+        past_key_values = DynamicCache()
 
         # Generate one token at a time
+        first_token = True
         while True:
             # Generate next token using forward pass
             with torch.no_grad():
                 outputs = model(
-                    input_ids=input_ids if cache is None else input_ids[:, -1:],
-                    past_key_values=cache,
+                    input_ids=input_ids if first_token else input_ids[:, -1:],
+                    past_key_values=past_key_values,
                     use_cache=True,
                 )
 
             # Get logits and updated past key values
-            if cache is None:
+            if first_token:
                 print("\n--------------------------------\n")
             next_token_logits = outputs.logits[:, -1, :]
-            cache = DynamicCache.from_legacy_cache(outputs.past_key_values)  # type: ignore
 
             # Sample next token
             if temperature == 0.0:
@@ -134,14 +143,28 @@ def main():
                 next_token = sorted_indices[0, next_token_idx]
 
             # Print the new token
-            print(tokenizer.decode(next_token[0], skip_special_tokens=False), end='', flush=True)
+            curr_token: str = tokenizer.decode(next_token[0], skip_special_tokens=False)
 
             # Break if we hit the end token or max length
             if next_token[0] == tokenizer.eos_token_id or input_ids.shape[1] >= max_length:
                 break
 
-            # Update input_ids for next iteration
-            input_ids = torch.cat([input_ids, next_token], dim=-1)
+            if args.doubt_injection and curr_token in doubtful_prefix:
+                # Inject doubt into the response on '.\n\n'
+                if torch.bernoulli(torch.tensor([args.doubt_injection / 10])).item() == 1:
+                    input_ids = torch.cat(
+                        [input_ids, next_token, doubtful_statement_ids], dim=-1)
+                    print(curr_token + doubtful_statement, end='', flush=True)
+                else:
+                    input_ids = torch.cat([input_ids, next_token], dim=-1)
+                    print(curr_token, end='', flush=True)
+            else:
+                # Update input_ids for next iteration
+                input_ids = torch.cat([input_ids, next_token], dim=-1)
+                print(curr_token, end='', flush=True)
+
+            if first_token:
+                first_token = False
 
         llm_response: str = tokenizer.decode(
             input_ids[0],
