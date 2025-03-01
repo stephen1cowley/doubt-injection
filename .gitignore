@@ -1,3 +1,4 @@
 responses/*.json
 *.out
 machine.file.*
+*.pyc
