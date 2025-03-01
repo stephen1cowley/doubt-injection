@@ -21,15 +21,14 @@ for file in files:
         results: List[dict] = json.load(f)
 
         for result in results:
-            # Handle case where doubt_injection_prob key doesn't exist
-            doubt_injection_prob = str(0.0)
+            # Handle case where doubt_injection_prob key doesn't exist  
             if "doubt_injection_prob" not in result:
                 continue
-
             # Handle case where temperature key doesn't exist
             if "temperature" not in result:
                 continue  # Skip this result if temperature is missing
             temperature = str(result["temperature"])
+            doubt_injection_prob = str(result["doubt_injection_prob"])
 
             # Initialize nested dictionaries if they don't exist
             if doubt_injection_prob not in results_summary:
