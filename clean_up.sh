@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copy all .out files to outputs directory
-find . -name "*.out" -exec cp {} outputs/ \;
-# Copy all machine.file.* files to outputs directory
-find . -name "machine.file.*" -exec cp {} outputs/ \;
+# Move all .out files to outputs directory
+find . -name "*.out" -exec mv {} outputs/ \;
+# Move all machine.file.* files to outputs directory
+find . -name "machine.file.*" -exec mv {} outputs/ \;
 
 git stash
 git pull
