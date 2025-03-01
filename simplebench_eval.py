@@ -17,6 +17,7 @@ class ExperimentResult:
     question_id: int
     top_p: float
     prompt_name: str
+    doubt_injection_prob: float
 
 
 def parse_args():
@@ -38,7 +39,7 @@ def main():
     args = parse_args()
     llm_name: str = args.llm_name
     temperatures: List[float] = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
-    max_length: int = 5000
+    max_length: int = 10000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
     question_id: int = args.q_id - 1
@@ -186,7 +187,8 @@ def main():
             llm_name=llm_name,
             question_id=question_id+1,
             top_p=top_p,
-            prompt_name=prompt_name
+            prompt_name=prompt_name,
+            doubt_injection_prob=args.doubt_injection/10
         )
         results.append(result)
 
@@ -197,7 +199,8 @@ def main():
 
     # Save results to JSON file with timestamp
     timestamp = int(time.time())
-    output_filename = f"responses/results_q{str(question_id)}_{str(int(timestamp))}.json"
+    output_filename = (f"responses/results_q{str(question_id)}_"
+                       f"d{str(args.doubt_injection)}_p{str(int(timestamp))}.json")
     with open(output_filename, "w") as f:
         # Convert dataclass objects to dictionaries
         json_results = [asdict(result) for result in results]
