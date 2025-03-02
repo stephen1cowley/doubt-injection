@@ -31,6 +31,7 @@ cd sbatch
 
 ## TODO
 - 50 responses at each temperature for DeepSeek on 10 simplebench questions
+- Analyse it on a per-question basis (different lines same graph)
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
