@@ -164,6 +164,8 @@
                 let prob = uniqueProbs[i];
                 let temperatures = [];
                 let accuracies = [];
+                let correctCounts = [];
+                let totalCounts = [];
                 
                 // Normalize position for color interpolation - reversed order
                 const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
@@ -188,26 +190,34 @@
                 for (let [temp, [correct, total]] of Object.entries(temperatureResults)) {
                     temperatures.push(parseFloat(temp));
                     accuracies.push(correct / total);
+                    correctCounts.push(correct);
+                    totalCounts.push(total);
                 }
                 
                 // Sort by temperature
-                let sorted = temperatures.map((t, i) => ({temp: t, acc: accuracies[i]}))
-                    .sort((a, b) => a.temp - b.temp);
+                let sorted = temperatures.map((t, i) => ({
+                    temp: t,
+                    acc: accuracies[i],
+                    correct: correctCounts[i],
+                    total: totalCounts[i]
+                })).sort((a, b) => a.temp - b.temp);
                 
                 traces.push({
                     x: sorted.map(p => p.temp),
                     y: sorted.map(p => p.acc),
                     mode: 'lines+markers',
-                    name: `Doubt Injection: ${parseFloat(prob).toFixed(1)}`,
+                    name: parseFloat(prob).toFixed(1),
                     line: { color: lineColor },
-                    marker: { color: lineColor }
+                    marker: { color: lineColor },
+                    text: sorted.map(p => `Correct: ${p.correct}<br>Total: ${p.total}`),
+                    hovertemplate: 'Temperature: %{x}<br>Accuracy: %{y:.3f}<br>%{text}<extra></extra>'
                 });
             }
             
             // Find the maximum accuracy value
             const maxAccuracy = Math.max(...traces.flatMap(trace => trace.y));
             // Add 10% padding above the maximum value, but don't exceed 1
-            const yAxisMax = Math.min(1, maxAccuracy * 1.1);
+            const yAxisMax = maxAccuracy * 1.1;
             
             let layout = {
                 title: 'Accuracy vs Temperature',
@@ -217,7 +227,13 @@
                     range: [0, yAxisMax]
                 },
                 hovermode: 'closest',
-                height: 600
+                height: 600,
+                legend: {
+                    title: {
+                        text: 'Doubt Injection Probability',
+                        font: { size: 13 }
+                    }
+                }
             };
             
             Plotly.newPlot('plot', traces, layout);
