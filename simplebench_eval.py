@@ -26,7 +26,7 @@ def parse_args():
 def main():
     args = parse_args()
     llm_name: str = args.llm_name
-    temperatures: List[float] = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+    temperatures: List[float] = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
     max_length: int = 10000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
@@ -176,12 +176,12 @@ def main():
             question_id=question_id+1,
             top_p=top_p,
             prompt_name=prompt_name,
-            doubt_injection_prob=args.doubt_injection/10
+            doubt_injection_prob=args.doubt_injection/100
         )
         results.append(result)
 
         print(f"LLM answer at temperature {result.temperature}: {result.llm_answer}")
-        print(f"Probability of doubt injection: {result.doubt_injection_prob/10}")
+        print(f"Probability of doubt injection: {result.doubt_injection_prob/100}")
         print(f"Correct answer: {result.correct_answer}")
         print(f"Time taken: {time.time() - time_0:.2f} seconds")
         print("\n--------------------------------\n")
