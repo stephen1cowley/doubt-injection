@@ -40,6 +40,14 @@ for file in files:
             if temperature not in results_summary[doubt_injection_prob]:
                 results_summary[doubt_injection_prob][temperature] = (0, 0)
 
+            # Initialize nested dictionaries for results_per_question
+            if question_id not in results_per_question:
+                results_per_question[question_id] = {}
+            if doubt_injection_prob not in results_per_question[question_id]:
+                results_per_question[question_id][doubt_injection_prob] = {}
+            if temperature not in results_per_question[question_id][doubt_injection_prob]:
+                results_per_question[question_id][doubt_injection_prob][temperature] = (0, 0)
+
             # Update counts
             if result["llm_answer"] == result["correct_answer"]:
                 results_summary[doubt_injection_prob][temperature] = (
