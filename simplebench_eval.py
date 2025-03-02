@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--q_id', type=int, default=1,
                         help='Question ID to evaluate')
     parser.add_argument('--doubt_injection', type=int, default=0,
-                        help='0-10 probability to inject doubt into the response')
+                        help='0-100 probability to inject doubt into the response')
     parser.add_argument('--llm_name', type=str,
                         default="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
                         help='LLM name or path')
@@ -31,6 +31,7 @@ def main():
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
     question_id: int = args.q_id - 1
+    doubt_injection_prob: float = args.doubt_injection / 100
 
     # Load questions
     with open("simplebench/simplebench.json", "r") as f:
@@ -140,7 +141,7 @@ def main():
 
             if args.doubt_injection and curr_token in doubtful_prefix:
                 # Inject doubt into the response on '.\n\n'
-                if torch.bernoulli(torch.tensor([args.doubt_injection / 10])).item() == 1:
+                if torch.bernoulli(torch.tensor([doubt_injection_prob])).item() == 1:
                     input_ids = torch.cat(
                         [input_ids, next_token, doubtful_statement_ids], dim=-1)
                     print(curr_token + doubtful_statement, end='', flush=True)
@@ -176,12 +177,12 @@ def main():
             question_id=question_id+1,
             top_p=top_p,
             prompt_name=prompt_name,
-            doubt_injection_prob=args.doubt_injection/100
+            doubt_injection_prob=doubt_injection_prob
         )
         results.append(result)
 
         print(f"LLM answer at temperature {result.temperature}: {result.llm_answer}")
-        print(f"Probability of doubt injection: {result.doubt_injection_prob/100}")
+        print(f"Probability of doubt injection: {doubt_injection_prob}")
         print(f"Correct answer: {result.correct_answer}")
         print(f"Time taken: {time.time() - time_0:.2f} seconds")
         print("\n--------------------------------\n")
