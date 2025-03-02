@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM Results Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+        }
+        .controls {
+            width: 200px;
+            padding: 20px;
+            background: #fafafa;
+            border-right: 1px solid #eee;
+        }
+        .controls h3 {
+            font-weight: 600;
+            color: #2f3640;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .controls button {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            margin: 0 5px 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .controls button:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+        }
+        .graph {
+            flex-grow: 1;
+            padding: 20px;
+            height: 100%;
+        }
+        .checkbox-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .checkbox-list div {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-list input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .checkbox-list label {
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+            user-select: none;
+        }
+        .file-input {
+            margin: 0 auto;
+            padding: 10px 0;
+            display: block;
+            width: 100%;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <input type="file" accept=".json" class="file-input">
+            <h3>Select Questions:</h3>
+            <button onclick="selectAll()">Select All</button>
+            <button onclick="deselectAll()">Deselect All</button>
+            <div class="checkbox-list" id="questionList"></div>
+        </div>
+        <div class="graph" id="plot"></div>
+    </div>
+
+    <script>
+        // Modify file input handling to use the HTML element
+        const fileInput = document.querySelector('.file-input');
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                window.data = JSON.parse(e.target.result);
+                
+                // Create checkboxes
+                const questionList = document.getElementById('questionList');
+                questionList.innerHTML = ''; // Clear existing checkboxes
+                for (let question in data) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label>
+                            <input type="checkbox" value="${question}" onclick="updatePlot()" checked>
+                            <span>${question}</span>
+                        </label>
+                    `;
+                    questionList.appendChild(div);
+                }
+                
+                updatePlot();
+            };
+            
+            reader.readAsText(file);
+        });
+
+        function updatePlot() {
+            let selectedQuestions = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            
+            let traces = [];
+            
+            // Get unique doubt injection probabilities
+            let uniqueProbs = [...new Set(
+                selectedQuestions.flatMap(q => Object.keys(data[q]))
+            )];
+            uniqueProbs.sort((a, b) => parseFloat(a) - parseFloat(b));
+
+            // Define color stops for the gradient
+            const colorStops = [
+                { pos: 0, color: [255, 0, 0] },    // Red
+                { pos: 0.33, color: [255, 255, 0] }, // Yellow
+                { pos: 0.66, color: [0, 255, 255] }, // Cyan
+                { pos: 1, color: [0, 0, 255] }     // Blue
+            ];
+
+            // Function to interpolate between colors
+            function interpolateColor(value) {
+                // Find the color stops that bound our value
+                for (let i = 0; i < colorStops.length - 1; i++) {
+                    if (value >= colorStops[i].pos && value <= colorStops[i + 1].pos) {
+                        const t = (value - colorStops[i].pos) / (colorStops[i + 1].pos - colorStops[i].pos);
+                        const rgb = colorStops[i].color.map((start, j) => {
+                            const end = colorStops[i + 1].color[j];
+                            return Math.round(start + (end - start) * t);
+                        });
+                        return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                    }
+                }
+                return `rgb(${colorStops[colorStops.length - 1].color.join(',')})`;
+            }
+            
+            for (let i = 0; i < uniqueProbs.length; i++) {
+                let prob = uniqueProbs[i];
+                let temperatures = [];
+                let accuracies = [];
+                
+                // Normalize position for color interpolation - reversed order
+                const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
+                const lineColor = interpolateColor(normalizedPos);
+                
+                // Aggregate results for selected questions
+                let temperatureResults = {};
+                
+                for (let question of selectedQuestions) {
+                    if (data[question][prob]) {
+                        for (let [temp, [correct, total]] of Object.entries(data[question][prob])) {
+                            if (!temperatureResults[temp]) {
+                                temperatureResults[temp] = [0, 0];
+                            }
+                            temperatureResults[temp][0] += correct;
+                            temperatureResults[temp][1] += total;
+                        }
+                    }
+                }
+                
+                // Convert to arrays for plotting
+                for (let [temp, [correct, total]] of Object.entries(temperatureResults)) {
+                    temperatures.push(parseFloat(temp));
+                    accuracies.push(correct / total);
+                }
+                
+                // Sort by temperature
+                let sorted = temperatures.map((t, i) => ({temp: t, acc: accuracies[i]}))
+                    .sort((a, b) => a.temp - b.temp);
+                
+                traces.push({
+                    x: sorted.map(p => p.temp),
+                    y: sorted.map(p => p.acc),
+                    mode: 'lines+markers',
+                    name: `Doubt Injection: ${parseFloat(prob).toFixed(1)}`,
+                    line: { color: lineColor },
+                    marker: { color: lineColor }
+                });
+            }
+            
+            // Find the maximum accuracy value
+            const maxAccuracy = Math.max(...traces.flatMap(trace => trace.y));
+            // Add 10% padding above the maximum value, but don't exceed 1
+            const yAxisMax = Math.min(1, maxAccuracy * 1.1);
+            
+            let layout = {
+                title: 'Accuracy vs Temperature',
+                xaxis: {title: 'Temperature'},
+                yaxis: {
+                    title: 'Accuracy',
+                    range: [0, yAxisMax]
+                },
+                hovermode: 'closest',
+                height: 600
+            };
+            
+            Plotly.newPlot('plot', traces, layout);
+        }
+        
+        function selectAll() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updatePlot();
+        }
+        
+        function deselectAll() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updatePlot();
+        }
+    </script>
+</body>
+</html> 
