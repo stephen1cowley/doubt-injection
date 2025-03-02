@@ -78,7 +78,7 @@ def main():
 
     # Set doubtful statement
     if args.doubt_injection:
-        doubtful_statement: str = "But wait, let me think again. "
+        doubtful_statement: str = "But wait, let me think again."
         doubtful_statement_ids: torch.Tensor = tokenizer.encode(
             doubtful_statement, return_tensors="pt").to(model.device)
 
@@ -181,6 +181,7 @@ def main():
         results.append(result)
 
         print(f"LLM answer at temperature {result.temperature}: {result.llm_answer}")
+        print(f"Probability of doubt injection: {result.doubt_injection_prob/10}")
         print(f"Correct answer: {result.correct_answer}")
         print(f"Time taken: {time.time() - time_0:.2f} seconds")
         print("\n--------------------------------\n")
