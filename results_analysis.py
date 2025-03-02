@@ -16,7 +16,10 @@ for file in os.listdir("responses"):
 
 # doubt_injection_prob -> temperature -> (correct, total)
 results_summary: Dict[str, Dict[str, Tuple[int, int]]] = {}
+# question -> (doubt_injection_prob -> temperature -> (correct, total))
+results_per_question: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
 for file in files:
+    print(file)
     with open(os.path.join(f"responses/{file}"), "r") as f:
         results: List[dict] = json.load(f)
 
@@ -29,6 +32,7 @@ for file in files:
                 continue  # Skip this result if temperature is missing
             temperature = str(result["temperature"])
             doubt_injection_prob = str(result["doubt_injection_prob"])
+            question_id = str(result["question_id"])
 
             # Initialize nested dictionaries if they don't exist
             if doubt_injection_prob not in results_summary:
@@ -42,10 +46,18 @@ for file in files:
                     results_summary[doubt_injection_prob][temperature][0] + 1,
                     results_summary[doubt_injection_prob][temperature][1] + 1
                 )
+                results_per_question[question_id][doubt_injection_prob][temperature] = (
+                    results_per_question[question_id][doubt_injection_prob][temperature][0] + 1,
+                    results_per_question[question_id][doubt_injection_prob][temperature][1] + 1
+                )
             else:
                 results_summary[doubt_injection_prob][temperature] = (
                     results_summary[doubt_injection_prob][temperature][0],
                     results_summary[doubt_injection_prob][temperature][1] + 1
+                )
+                results_per_question[question_id][doubt_injection_prob][temperature] = (
+                    results_per_question[question_id][doubt_injection_prob][temperature][0],
+                    results_per_question[question_id][doubt_injection_prob][temperature][1] + 1
                 )
 
 
@@ -53,3 +65,8 @@ for file in files:
 print(results_summary)
 with open("results_summary.json", "w") as f:
     json.dump(results_summary, f, indent=4)
+
+# Save results_summary to json
+print(results_summary)
+with open("results_per_question.json", "w") as f:
+    json.dump(results_per_question, f, indent=4)
