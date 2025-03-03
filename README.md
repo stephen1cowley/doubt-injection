@@ -41,6 +41,7 @@ But wait, let me think again.  because 15 isn't an option, so I must have made a
 - Hopefully this is more in line with what the LLM is expecting.
 - Unfortunately means initial results were a bit of a waste...?
 - Reading the responses was critical to spotting this issue...
+- YES, problem now solved.
 
 
 - The dream: 100 reponses for each, not 10.
@@ -48,13 +49,18 @@ But wait, let me think again.  because 15 isn't an option, so I must have made a
 - $100*10*6*14=84,000$ responses (2000 GPU hrs approx).
 - Hmm, I could maybe do 50 reponses, and don't bother with fine-grained (hence 500 GPU hrs approx)
 
+### CURRENT EXPERIMENT
+- Doing currently: $20*10*5*7=7000$ responses (175 GPU hrs)
+
 ## TODO
-- TEST whether new injection solves problem!!
 - 50 responses at each temperature for DeepSeek on 10 simplebench questions
-- SOlve why We get a weird double space. Use injection ids found in actual repsponses?
+- Same graph but response length
+- Create plots, do a write up plus plan for final 2 weeks
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
 - Get working Doubt Injector -- ensure works locally
 - Results evaluator for simplebench json files, by scanning the `os.listdir` of `/responses`
 - Analyse it on a per-question basis (different lines same graph)
+- SOlve why We get a weird double space. Use injection ids found in actual repsponses?
+- TEST whether new injection solves problem!!
