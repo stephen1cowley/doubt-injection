@@ -206,7 +206,7 @@
                     x: sorted.map(p => p.temp),
                     y: sorted.map(p => p.acc),
                     mode: 'lines+markers',
-                    name: parseFloat(prob).toFixed(1),
+                    name: parseFloat(prob).toFixed(2),
                     line: { color: lineColor },
                     marker: { color: lineColor },
                     text: sorted.map(p => `Correct: ${p.correct}<br>Total: ${p.total}`),
