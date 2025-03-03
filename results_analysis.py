@@ -4,6 +4,7 @@ The results should be in json lists in `responses/` of ExperimentResults schema.
 """
 
 from typing import List, Dict, Tuple
+import re
 import os
 import json
 
@@ -19,7 +20,10 @@ results_summary: Dict[str, Dict[str, Tuple[int, int]]] = {}
 # question -> (doubt_injection_prob -> temperature -> (correct, total))
 results_per_question: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
 for file in files:
-    print(file)
+    if int(re.sub('[a-zA-Z]', '', file.split("_")[-1].split(".")[0])) < 1740940200:
+        # Not interested if it was one of the old results (before 6:30pm 2nd March)
+        continue
+    print(file) 
     with open(os.path.join(f"responses/{file}"), "r") as f:
         results: List[dict] = json.load(f)
 
