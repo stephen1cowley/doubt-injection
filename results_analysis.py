@@ -27,6 +27,13 @@ for file in files:
     with open(os.path.join(f"responses/{file}"), "r") as f:
         results: List[dict] = json.load(f)
 
+        # Handle case where doubt_injection_prob key doesn't exist  
+        if "doubt_injection_prob" not in results[0]:
+            continue
+        # Handle case where temperature key doesn't exist
+        if "temperature" not in results[0]:
+            continue  # Skip this result if temperature is missing
+
         if results[0]["doubt_injection_prob"] in [0.2, 0.4, 0.6, 0.8]:
             continue
         if results[0]["doubt_injection_prob"] in [1.0]:
