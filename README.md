@@ -29,7 +29,7 @@ cd sbatch
 ```
 
 ## NOTES
-- Initially done 10 reponses for each one of 10 simplebench questions, for each 6 probabilities of injection, for each of 7 temperatures. Therefore $10*10*6*7=4,200$ reponses. 100 GPU hrs approx. (0.25hrs per 10 responses)
+- Initially done 10 reponses for each one of 10 simplebench questions, for each 6 probabilities of injection, for each of 7 temperatures. Therefore $10\times10\times6\times7=4,200$ reponses. 100 GPU hrs approx. (0.25hrs per 10 responses)
 - I then realised because of weird output witht he injection, e.g.
 ```
 But wait, let me think again.  maybe I missed something.
@@ -46,16 +46,25 @@ But wait, let me think again.  because 15 isn't an option, so I must have made a
 
 - The dream: 100 reponses for each, not 10.
 - Finer-grained temperature measurements (every 0.1)
-- $100*10*6*14=84,000$ responses (2000 GPU hrs approx).
+- $100\times10\times6\times14=84,000$ responses (2000 GPU hrs approx).
 - Hmm, I could maybe do 50 reponses, and don't bother with fine-grained (hence 500 GPU hrs approx)
 
-### CURRENT EXPERIMENT
-- Doing currently: $20*10*5*7=7000$ responses (175 GPU hrs)
+### PREVIOUS EXPERIMENT
+- Doing currently: $20\times10\times5\times7=7000$ responses (175 GPU hrs)
+
+### NEXT EXPERIMENT
+Explore the range of $T\in[0.6, 1.1]$. Only for $p\in\{0.0, 0.5\}$ as 0.5 showed the most promise. Only on subset of 7 questions (not 4, 6, 7; edit this in the shell script). Question is granularity of temperatures (tempted to not go too granular), as well as @X (tempted to go higher to reduce those pesky error bars...).
+
+Roughly want to use on the order of the same amount of compute as the last experiment.
+
+Do @100. Error bars will decrease size by ~2.5X. May be enough to not have overlapping error bars. Do T=0.6, 0.75, 0.9, 1.0, 1.1. (To try an exploit some existing results to minimise error bars).
+
+Num responses: $100\times7\times2\times5=7000$ responses.
+
 
 ## TODO
 - 50 responses at each temperature for DeepSeek on 10 simplebench questions
 - Same graph but response length
-- Create plots, do a write up plus plan for final 2 weeks
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
@@ -64,3 +73,4 @@ But wait, let me think again.  because 15 isn't an option, so I must have made a
 - Analyse it on a per-question basis (different lines same graph)
 - SOlve why We get a weird double space. Use injection ids found in actual repsponses?
 - TEST whether new injection solves problem!!
+- Create plots, do a write up plus plan for final 2 weeks
