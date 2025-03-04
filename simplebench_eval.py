@@ -26,7 +26,7 @@ def parse_args():
 def main():
     args = parse_args()
     llm_name: str = args.llm_name
-    temperatures: List[float] = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
+    temperatures: List[float] = [0.6, 0.75, 0.9, 1.0, 1.1]
     max_length: int = 10000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
