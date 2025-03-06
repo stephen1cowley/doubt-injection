@@ -20,13 +20,16 @@ def parse_args():
     parser.add_argument('--prompt_name', type=str,
                         default="simplebench_deepseek.txt",
                         help='Prompt name')
+    parser.add_argument('--temperature_set', type=str,
+                        default="0.6,0.75,0.9,1.0,1.1",
+                        help='Temperature set (comma separated)')
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     llm_name: str = args.llm_name
-    temperatures: List[float] = [0.6, 0.75, 0.9, 1.0, 1.1]
+    temperatures: List[float] = [float(temp) for temp in args.temperature_set.split(',')]
     max_length: int = 10000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
