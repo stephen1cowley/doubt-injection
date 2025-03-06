@@ -49,10 +49,10 @@ But wait, let me think again.  because 15 isn't an option, so I must have made a
 - $100\times10\times6\times14=84,000$ responses (2000 GPU hrs approx).
 - Hmm, I could maybe do 50 reponses, and don't bother with fine-grained (hence 500 GPU hrs approx)
 
-### PREVIOUS EXPERIMENT
+### EXPERIMENT 1
 - Doing currently: $20\times10\times5\times7=7000$ responses (175 GPU hrs)
 
-### NEXT EXPERIMENT
+### EXPERIMENT 2
 Explore the range of $T\in[0.6, 1.1]$. Only for $p\in\{0.0, 0.5\}$ as 0.5 showed the most promise. Only on subset of 7 questions (not 4, 6, 7; edit this in the shell script). Question is granularity of temperatures (tempted to not go too granular), as well as @X (tempted to go higher to reduce those pesky error bars...).
 
 Roughly want to use on the order of the same amount of compute as the last experiment.
@@ -61,9 +61,16 @@ Do @100. Error bars will decrease size by ~2.5X. May be enough to not have overl
 
 Num responses: $100\times7\times2\times5=7000$ responses.
 
+### Clean-up
+Because of time out from long responses, this means there are currently *slightly* uneven weightings of the questionset per quesion.
+
+To repair this, I have a small list of missing results.
+
+Alternatively, just write a module that will take existing results and, for each datapoint in the json, make sure each question is weighted properly. Either by removing random results until they equalise, or 
+
 
 ## TODO
-- 50 responses at each temperature for DeepSeek on 10 simplebench questions
+- Equal weighting of the 6 questions, for fair comparisons!
 - Same graph but response length
 
 ## DONE
@@ -74,3 +81,4 @@ Num responses: $100\times7\times2\times5=7000$ responses.
 - SOlve why We get a weird double space. Use injection ids found in actual repsponses?
 - TEST whether new injection solves problem!!
 - Create plots, do a write up plus plan for final 2 weeks
+- 50 responses at each temperature for DeepSeek on 10 simplebench questions
