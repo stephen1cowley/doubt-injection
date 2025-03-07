@@ -69,6 +69,16 @@ To repair this, I have a small list of missing results.
 Alternatively, just write a module that will take existing results and, for each datapoint in the json, make sure each question is weighted properly. Either by removing random results until they equalise, or 
 
 
+### Finale
+Want to get nice, polished results, that tell a story.
+
+- Give a rest to SimpleBench
+- Get proper, high quality NQ dataset
+- Set up deepseek on NQ.
+- Test effect of add-CAD in the CoT.
+- Create error bar graphs for CAD stuff...
+
+
 ## TODO
 - Equal weighting of the 6 questions, for fair comparisons!
 - Same graph but response length
