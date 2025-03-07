@@ -75,6 +75,6 @@ for file in files:
                 )
 
 # Save results_summary to json
-print(results_summary)
+print(results_per_question)
 with open("results_per_question.json", "w") as f:
     json.dump(results_per_question, f, indent=4)
