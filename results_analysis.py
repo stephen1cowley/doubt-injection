@@ -52,31 +52,27 @@ for file in files:
             if temperature not in results_per_question[question_id][doubt_injection_prob]:
                 results_per_question[question_id][doubt_injection_prob][temperature] = (0, 0)
 
+            # HARD CODED:
+            # cap T=0.75,1.0 at 120
+            # cap T=0.6, 0.9, 1.1 at 100
+            # cap T=0.0, 0.25, 0.5, 1.25, 1.5 at 20
+            if temperature in ["0.75", "1.0"] and results_per_question[question_id][doubt_injection_prob][temperature][1] >= 120:
+                continue
+            if temperature in ["0.6", "0.9", "1.1"] and results_per_question[question_id][doubt_injection_prob][temperature][1] >= 100:
+                continue
+            if temperature in ["0.0", "0.25", "0.5", "1.25", "1.5"] and results_per_question[question_id][doubt_injection_prob][temperature][1] >= 20:
+                continue
             # Update counts
             if result["llm_answer"] == result["correct_answer"]:
-                results_summary[doubt_injection_prob][temperature] = (
-                    results_summary[doubt_injection_prob][temperature][0] + 1,
-                    results_summary[doubt_injection_prob][temperature][1] + 1
-                )
                 results_per_question[question_id][doubt_injection_prob][temperature] = (
                     results_per_question[question_id][doubt_injection_prob][temperature][0] + 1,
                     results_per_question[question_id][doubt_injection_prob][temperature][1] + 1
                 )
             else:
-                results_summary[doubt_injection_prob][temperature] = (
-                    results_summary[doubt_injection_prob][temperature][0],
-                    results_summary[doubt_injection_prob][temperature][1] + 1
-                )
                 results_per_question[question_id][doubt_injection_prob][temperature] = (
                     results_per_question[question_id][doubt_injection_prob][temperature][0],
                     results_per_question[question_id][doubt_injection_prob][temperature][1] + 1
                 )
-
-
-# Save results_summary to json
-print(results_summary)
-with open("results_summary.json", "w") as f:
-    json.dump(results_summary, f, indent=4)
 
 # Save results_summary to json
 print(results_summary)
