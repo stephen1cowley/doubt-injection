@@ -15,8 +15,6 @@ for file in os.listdir("responses"):
         files.append(file)
 
 
-# doubt_injection_prob -> temperature -> (correct, total)
-results_summary: Dict[str, Dict[str, Tuple[int, int]]] = {}
 # question -> (doubt_injection_prob -> temperature -> (correct, total))
 results_per_question: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
 for file in files:
@@ -37,12 +35,6 @@ for file in files:
             temperature = str(result["temperature"])
             doubt_injection_prob = str(result["doubt_injection_prob"])
             question_id = str(result["question_id"])
-
-            # Initialize nested dictionaries if they don't exist
-            if doubt_injection_prob not in results_summary:
-                results_summary[doubt_injection_prob] = {}
-            if temperature not in results_summary[doubt_injection_prob]:
-                results_summary[doubt_injection_prob][temperature] = (0, 0)
 
             # Initialize nested dictionaries for results_per_question
             if question_id not in results_per_question:

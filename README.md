@@ -84,7 +84,8 @@ Want to get nice, polished results, that tell a story.
 - Same graph but response length <----- (easy nice graph)
 
 - 5 or so different injection strings, try at T=1.0 only. (Aim is to find anything that improves!)
-- Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task).
+- Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task.)
+- Need *some* sort of literature review on CoT? Would be nice on background motivating that sort of stuff.
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
