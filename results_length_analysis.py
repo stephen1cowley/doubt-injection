@@ -71,6 +71,8 @@ for doubt_injection_prob in tokens_temp:
         mean = sum(tokens) / len(tokens)
         upper_95 = sorted(tokens)[int(len(tokens) * 0.975)]
         lower_95 = sorted(tokens)[int(len(tokens) * 0.025)]
+        if doubt_injection_prob not in mean_tokens:
+            mean_tokens[doubt_injection_prob] = {}
         mean_tokens[doubt_injection_prob][temperature] = (mean, upper_95, lower_95)
 
 # Save results_summary to json
