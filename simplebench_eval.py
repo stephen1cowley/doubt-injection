@@ -23,6 +23,9 @@ def parse_args():
     parser.add_argument('--temperature_set', type=str,
                         default="0.6,0.75,0.9,1.0,1.1",
                         help='Temperature set (comma separated)')
+    parser.add_argument('--injection_string', type=str,
+                        default="But wait, let me think again.",
+                        help='Injection string')
     return parser.parse_args()
 
 
@@ -35,6 +38,7 @@ def main():
     prompt_name: str = args.prompt_name
     question_id: int = args.q_id - 1
     doubt_injection_prob: float = args.doubt_injection / 100
+    injection_string: str = args.injection_string
 
     # Load questions
     with open("simplebench/simplebench.json", "r") as f:
@@ -82,9 +86,9 @@ def main():
 
     # Set doubtful statement
     if args.doubt_injection:
-        doubtful_statement: str = "But wait, let me think again."
+        injection_string: str = "But wait, let me think again."
         doubtful_statement_ids: torch.Tensor = tokenizer.encode(
-            doubtful_statement, return_tensors="pt").to(model.device)
+            injection_string, return_tensors="pt").to(model.device)
 
         doubtful_prefix: List[str] = [".\n\n", " \n\n", "\n\n",  ". \n\n"]
 
@@ -147,7 +151,7 @@ def main():
                 if torch.bernoulli(torch.tensor([doubt_injection_prob])).item() == 1:
                     input_ids = torch.cat(
                         [input_ids, next_token, doubtful_statement_ids], dim=-1)
-                    print(curr_token + doubtful_statement, end='', flush=True)
+                    print(curr_token + injection_string, end='', flush=True)
                 else:
                     input_ids = torch.cat([input_ids, next_token], dim=-1)
                     print(curr_token, end='', flush=True)
