@@ -109,6 +109,22 @@
                     Show Error Bars
                 </label>
             </div>
+            
+            <!-- Add customization controls for title and y-axis -->
+            <h3>Customize Chart:</h3>
+            <div style="margin-bottom: 15px;">
+                <label for="chartTitle" style="display: block; margin-bottom: 5px;">Chart Title:</label>
+                <input type="text" id="chartTitle" placeholder="Accuracy vs Temperature" 
+                       style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                       onchange="updatePlot()">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="yAxisLabel" style="display: block; margin-bottom: 5px;">Y-Axis Label:</label>
+                <input type="text" id="yAxisLabel" placeholder="Accuracy" 
+                       style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                       onchange="updatePlot()">
+            </div>
         </div>
         <div class="graph" id="plot"></div>
     </div>
@@ -167,6 +183,10 @@
             let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
                 .map(cb => cb.value);
             let showErrorBars = document.getElementById('showErrorBars').checked;
+            
+            // Get custom title and y-axis label values
+            let customTitle = document.getElementById('chartTitle').value;
+            let customYAxisLabel = document.getElementById('yAxisLabel').value;
             
             let traces = [];
             
@@ -295,14 +315,14 @@
             
             let layout = {
                 title: {
-                    text: showErrorBars 
+                    text: customTitle || (showErrorBars 
                         ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
-                        : 'Accuracy vs Temperature',
+                        : 'Accuracy vs Temperature'),
                     font: { size: 18 }
                 },
                 xaxis: {title: 'Temperature'},
                 yaxis: {
-                    title: 'Accuracy',
+                    title: customYAxisLabel || 'Accuracy',
                     range: [0, yAxisMax]
                 },
                 hovermode: 'closest',
