@@ -50,11 +50,11 @@ for file in files:
             # cap T=0.75,1.0 at 120
             # cap T=0.6, 0.9, 1.1 at 100
             # cap T=0.0, 0.25, 0.5, 1.25, 1.5 at 20
-            if temperature in ["0.75", "1.0"] and mean_tokens[question_id][doubt_injection_prob][temperature][1] >= 120:
+            if temperature in ["0.75", "1.0"] and mean_tokens[question_id][doubt_injection_prob][temperature][2] >= 120:
                 continue
-            if temperature in ["0.6", "0.9", "1.1"] and mean_tokens[question_id][doubt_injection_prob][temperature][1] >= 100:
+            if temperature in ["0.6", "0.9", "1.1"] and mean_tokens[question_id][doubt_injection_prob][temperature][2] >= 100:
                 continue
-            if temperature in ["0.0", "0.25", "0.5", "1.25", "1.5"] and mean_tokens[question_id][doubt_injection_prob][temperature][1] >= 20:
+            if temperature in ["0.0", "0.25", "0.5", "1.25", "1.5"] and mean_tokens[question_id][doubt_injection_prob][temperature][2] >= 20:
                 continue
             # Update counts
             mean_tokens[question_id][doubt_injection_prob][temperature] = (
