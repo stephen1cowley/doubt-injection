@@ -68,12 +68,12 @@ for file in files:
 for doubt_injection_prob in tokens_temp:
     for temperature in tokens_temp[doubt_injection_prob]:
         tokens = tokens_temp[doubt_injection_prob][temperature]
-        mean = sum(tokens) / len(tokens)
+        median = sorted(tokens)[int(len(tokens) * 0.5)]
         upper_95 = sorted(tokens)[int(len(tokens) * 0.75)]
         lower_95 = sorted(tokens)[int(len(tokens) * 0.25)]
         if doubt_injection_prob not in mean_tokens:
             mean_tokens[doubt_injection_prob] = {}
-        mean_tokens[doubt_injection_prob][temperature] = (mean, upper_95, lower_95)
+        mean_tokens[doubt_injection_prob][temperature] = (median, upper_95, lower_95)
 
 # Save results_summary to json
 print(mean_tokens)
