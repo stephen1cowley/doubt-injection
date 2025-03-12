@@ -85,6 +85,59 @@
             width: 100%;
             font-size: 14px;
         }
+        .toggle-container {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 28px;
+            margin-right: 10px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(32px);
+        }
+        .toggle-label {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 14px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -92,10 +145,22 @@
         <div class="controls">
             <input type="file" accept=".json" class="file-input">
             
-            <h3>Select Questions:</h3>
-            <button onclick="selectAll('questions')">Select All</button>
-            <button onclick="deselectAll('questions')">Deselect All</button>
-            <div class="checkbox-list" id="questionList"></div>
+            <!-- Add data structure toggle -->
+            <div class="toggle-container">
+                <div style="margin-bottom: 8px; font-weight: 600;">Data Structure:</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dataStructureToggle" onclick="updatePlot()">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="toggleLabel">Accuracy Data</span>
+            </div>
+            
+            <div id="questionSection">
+                <h3>Select Questions:</h3>
+                <button onclick="selectAll('questions')">Select All</button>
+                <button onclick="deselectAll('questions')">Deselect All</button>
+                <div class="checkbox-list" id="questionList"></div>
+            </div>
 
             <!-- Add new section for probability selection -->
             <h3>Select Probabilities:</h3>
@@ -130,66 +195,411 @@
     </div>
 
     <script>
+        // Global variables to store both data structures
+        let accuracyData = null;
+        let tokenData = null;
+        
+        // Toggle event handler
+        document.getElementById('dataStructureToggle').addEventListener('change', function() {
+            const toggleLabel = document.getElementById('toggleLabel');
+            const questionSection = document.getElementById('questionSection');
+            
+            if (this.checked) {
+                toggleLabel.textContent = "Token Count Data";
+                questionSection.style.display = 'none';
+            } else {
+                toggleLabel.textContent = "Accuracy Data";
+                questionSection.style.display = 'block';
+            }
+            
+            updatePlot();
+        });
+        
         // Modify file input handling to use the HTML element
         const fileInput = document.querySelector('.file-input');
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
+            console.log("File selected:", file.name);
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                window.data = JSON.parse(e.target.result);
-                
-                // Create question checkboxes
-                const questionList = document.getElementById('questionList');
-                questionList.innerHTML = '';
-                for (let question in data) {
-                    const div = document.createElement('div');
-                    div.innerHTML = `
-                        <label>
-                            <input type="checkbox" value="${question}" onclick="updatePlot()" checked>
-                            <span>${question}</span>
-                        </label>
-                    `;
-                    questionList.appendChild(div);
-                }
+                console.log("File loaded, parsing JSON...");
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    console.log("JSON parsed, detecting data structure...");
+                    
+                    // Determine data structure type based on content
+                    const isToken = isTokenData(jsonData);
+                    console.log("Data structure detection result:", isToken ? "Token Data" : "Accuracy Data");
+                    
+                    if (isToken) {
+                        console.log("Setting token data...");
+                        tokenData = jsonData;
+                        accuracyData = null;
+                        document.getElementById('dataStructureToggle').checked = true;
+                        document.getElementById('toggleLabel').textContent = "Token Count Data";
+                        document.getElementById('questionSection').style.display = 'none';
+                        console.log("Token data set:", Object.keys(tokenData).length, "probabilities");
+                    } else {
+                        console.log("Setting accuracy data...");
+                        accuracyData = jsonData;
+                        tokenData = null;
+                        document.getElementById('dataStructureToggle').checked = false;
+                        document.getElementById('toggleLabel').textContent = "Accuracy Data";
+                        document.getElementById('questionSection').style.display = 'block';
+                        console.log("Accuracy data set:", Object.keys(accuracyData).length, "questions");
+                    }
+                    
+                    // Create question checkboxes if accuracy data
+                    const questionList = document.getElementById('questionList');
+                    questionList.innerHTML = '';
+                    
+                    if (accuracyData) {
+                        for (let question in accuracyData) {
+                            const div = document.createElement('div');
+                            div.innerHTML = `
+                                <label>
+                                    <input type="checkbox" value="${question}" onclick="updatePlot()" checked>
+                                    <span>${question}</span>
+                                </label>
+                            `;
+                            questionList.appendChild(div);
+                        }
+                    }
 
-                // Create probability checkboxes
-                const probList = document.getElementById('probList');
-                probList.innerHTML = '';
-                const uniqueProbs = [...new Set(
-                    Object.values(data).flatMap(q => Object.keys(q))
-                )].sort((a, b) => parseFloat(a) - parseFloat(b));
-                
-                for (let prob of uniqueProbs) {
-                    const div = document.createElement('div');
-                    div.innerHTML = `
-                        <label>
-                            <input type="checkbox" value="${prob}" onclick="updatePlot()" checked>
-                            <span>${parseFloat(prob).toFixed(2)}</span>
-                        </label>
-                    `;
-                    probList.appendChild(div);
+                    // Create probability checkboxes
+                    const probList = document.getElementById('probList');
+                    probList.innerHTML = '';
+                    
+                    let uniqueProbs = [];
+                    if (accuracyData) {
+                        uniqueProbs = [...new Set(
+                            Object.values(accuracyData).flatMap(q => Object.keys(q))
+                        )].sort((a, b) => parseFloat(a) - parseFloat(b));
+                        console.log("Unique probabilities from accuracy data:", uniqueProbs);
+                    } else if (tokenData) {
+                        uniqueProbs = Object.keys(tokenData).sort((a, b) => parseFloat(a) - parseFloat(b));
+                        console.log("Unique probabilities from token data:", uniqueProbs);
+                    }
+                    
+                    for (let prob of uniqueProbs) {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <label>
+                                <input type="checkbox" value="${prob}" onclick="updatePlot()" checked>
+                                <span>${parseFloat(prob).toFixed(2)}</span>
+                            </label>
+                        `;
+                        probList.appendChild(div);
+                    }
+                    
+                    console.log("Checkboxes created, updating plot...");
+                    updatePlot();
+                } catch (error) {
+                    console.error("Error processing file:", error);
+                    alert("Error processing file: " + error.message);
                 }
-                
-                updatePlot();
             };
             
             reader.readAsText(file);
         });
+        
+        // Function to determine if data is token data
+        function isTokenData(data) {
+            // Check if the data structure matches the token data format
+            // Token data has doubt_injection_prob -> temperature -> [mean, 97.5%, 2.5%]
+            if (!data) return false;
+            
+            try {
+                console.log("Checking if data is token data format...");
+                
+                // Check if the structure is an object with at least one key
+                const keys = Object.keys(data);
+                if (keys.length === 0) return false;
+                console.log("Top-level keys:", keys);
+                
+                // Check the first key's value
+                const firstKey = keys[0];
+                const firstValue = data[firstKey];
+                
+                if (typeof firstValue !== 'object' || firstValue === null) return false;
+                console.log("First value is an object:", typeof firstValue === 'object');
+                
+                // Check if the inner structure has temperature keys
+                const tempKeys = Object.keys(firstValue);
+                if (tempKeys.length === 0) return false;
+                console.log("Temperature keys:", tempKeys);
+                
+                // Check the first temperature value
+                const firstTempKey = tempKeys[0];
+                const tempValue = firstValue[firstTempKey];
+                
+                // Check if the value is an array with 3 elements
+                if (!Array.isArray(tempValue) || tempValue.length !== 3) {
+                    console.log("Value is not an array with 3 elements:", tempValue);
+                    return false;
+                }
+                
+                console.log("Value is an array with 3 elements:", tempValue);
+                
+                // Verify all elements are numbers
+                const allNumbers = tempValue.every(val => typeof val === 'number');
+                console.log("All elements are numbers:", allNumbers);
+                
+                return allNumbers;
+            } catch (error) {
+                console.error("Error detecting data structure:", error);
+                return false;
+            }
+        }
 
         function updatePlot() {
-            let selectedQuestions = Array.from(document.querySelectorAll('#questionList input[type="checkbox"]:checked'))
-                .map(cb => cb.value);
-            let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
-                .map(cb => cb.value);
-            let showErrorBars = document.getElementById('showErrorBars').checked;
+            try {
+                const isTokenMode = document.getElementById('dataStructureToggle').checked;
+                const showErrorBars = document.getElementById('showErrorBars').checked;
+                
+                console.log("updatePlot called:", {
+                    isTokenMode,
+                    showErrorBars,
+                    hasAccuracyData: !!accuracyData,
+                    hasTokenData: !!tokenData
+                });
+                
+                // Get custom title and y-axis label values
+                let customTitle = document.getElementById('chartTitle').value;
+                let customYAxisLabel = document.getElementById('yAxisLabel').value;
+                
+                let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
+                    .map(cb => cb.value);
+                
+                console.log("Selected probabilities:", selectedProbs);
+                
+                let traces = [];
+                
+                // Check if we have the appropriate data for the selected mode
+                if (isTokenMode && tokenData) {
+                    console.log("Using token data mode");
+                    // Token data plotting
+                    plotTokenData(traces, selectedProbs, showErrorBars);
+                } else if (!isTokenMode && accuracyData) {
+                    console.log("Using accuracy data mode");
+                    // Accuracy data plotting
+                    let selectedQuestions = Array.from(document.querySelectorAll('#questionList input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
+                    plotAccuracyData(traces, selectedQuestions, selectedProbs, showErrorBars);
+                } else {
+                    console.log("No appropriate data for selected mode");
+                    // No appropriate data loaded for the selected mode
+                    Plotly.newPlot('plot', [], {title: `No ${isTokenMode ? 'token' : 'accuracy'} data loaded`});
+                    return;
+                }
+                
+                console.log("Traces generated:", traces.length);
+                
+                // Only proceed if we have traces to plot
+                if (traces.length === 0) {
+                    console.log("No traces to plot");
+                    Plotly.newPlot('plot', [], {title: 'No data to display'});
+                    return;
+                }
+                
+                // Find the maximum y value including upper confidence bounds
+                let maxY = 0;
+                try {
+                    // Extract all y values from all traces
+                    const allYValues = traces.flatMap(trace => 
+                        Array.isArray(trace.y) ? trace.y.filter(y => typeof y === 'number' && !isNaN(y)) : []
+                    );
+                    
+                    console.log("Y values for max calculation:", allYValues.length);
+                    
+                    // Only calculate max if we have values
+                    if (allYValues.length > 0) {
+                        maxY = Math.max(...allYValues);
+                        console.log("Max Y value:", maxY);
+                    } else {
+                        // Default max value if no valid y values found
+                        maxY = isTokenMode ? 10000 : 1;
+                        console.log("Using default max Y value:", maxY);
+                    }
+                } catch (error) {
+                    console.error("Error calculating max Y value:", error);
+                    // Default max value if error occurs
+                    maxY = isTokenMode ? 10000 : 1;
+                }
+                
+                // Add 10% padding above the maximum value
+                const yAxisMax = isTokenMode ? maxY * 1.1 : Math.min(1, maxY * 1.1);
+                
+                let layout = {
+                    title: {
+                        text: customTitle || (isTokenMode 
+                            ? (showErrorBars 
+                                ? 'Token Count vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals</span>'
+                                : 'Token Count vs Temperature')
+                            : (showErrorBars 
+                                ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
+                                : 'Accuracy vs Temperature')),
+                        font: { size: 18 }
+                    },
+                    xaxis: {title: 'Temperature'},
+                    yaxis: {
+                        title: customYAxisLabel || (isTokenMode ? 'Token Count' : 'Accuracy'),
+                        range: isTokenMode ? null : [0, yAxisMax]
+                    },
+                    hovermode: 'closest',
+                    height: 600,
+                    legend: {
+                        title: {
+                            text: 'Doubt Injection Probability',
+                            font: { size: 13 }
+                        }
+                    }
+                };
+                
+                console.log("Plotting with layout:", layout);
+                Plotly.newPlot('plot', traces, layout);
+                console.log("Plot complete");
+            } catch (error) {
+                console.error("Error in updatePlot:", error);
+                Plotly.newPlot('plot', [], {title: 'Error plotting data: ' + error.message});
+            }
+        }
+        
+        function plotTokenData(traces, selectedProbs, showErrorBars) {
+            console.log("plotTokenData called with:", {
+                selectedProbs,
+                tokenData: JSON.stringify(tokenData).substring(0, 100) + "...",
+                showErrorBars
+            });
             
-            // Get custom title and y-axis label values
-            let customTitle = document.getElementById('chartTitle').value;
-            let customYAxisLabel = document.getElementById('yAxisLabel').value;
+            // Filter uniqueProbs to only include selected probabilities
+            let uniqueProbs = selectedProbs.sort((a, b) => parseFloat(a) - parseFloat(b));
+            console.log("Unique probs:", uniqueProbs);
+
+            // Define color stops for the gradient
+            const colorStops = [
+                { pos: 0, color: [255, 0, 0] },     // Red
+                { pos: 0.5, color: [255, 0, 255] },  // Magenta
+                { pos: 1, color: [0, 0, 255] }      // Blue
+            ];
+
+            // Function to interpolate between colors
+            function interpolateColor(value) {
+                // Find the color stops that bound our value
+                for (let i = 0; i < colorStops.length - 1; i++) {
+                    if (value >= colorStops[i].pos && value <= colorStops[i + 1].pos) {
+                        const t = (value - colorStops[i].pos) / (colorStops[i + 1].pos - colorStops[i].pos);
+                        const rgb = colorStops[i].color.map((start, j) => {
+                            const end = colorStops[i + 1].color[j];
+                            return Math.round(start + (end - start) * t);
+                        });
+                        return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                    }
+                }
+                return `rgb(${colorStops[colorStops.length - 1].color.join(',')})`;
+            }
             
-            let traces = [];
+            for (let i = 0; i < uniqueProbs.length; i++) {
+                let prob = uniqueProbs[i];
+                console.log(`Processing prob: ${prob}`);
+                
+                if (!tokenData[prob] || typeof tokenData[prob] !== 'object') {
+                    console.log(`Skipping prob ${prob}: invalid data structure`);
+                    continue;
+                }
+                
+                let temperatures = [];
+                let meanTokens = [];
+                let upperBounds = [];
+                let lowerBounds = [];
+                
+                // Normalize position for color interpolation - reversed order
+                const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
+                const lineColor = interpolateColor(normalizedPos);
+                
+                // Extract data for this probability
+                console.log(`Extracting data for prob ${prob}:`, tokenData[prob]);
+                for (let temp in tokenData[prob]) {
+                    const values = tokenData[prob][temp];
+                    console.log(`  Temp ${temp}, values:`, values);
+                    
+                    // Verify the data structure
+                    if (!Array.isArray(values) || values.length !== 3) {
+                        console.log(`  Skipping temp ${temp}: not an array with 3 elements`);
+                        continue;
+                    }
+                    
+                    // Ensure all values are numbers
+                    if (!values.every(val => typeof val === 'number')) {
+                        console.log(`  Skipping temp ${temp}: not all values are numbers`);
+                        continue;
+                    }
+                    
+                    temperatures.push(parseFloat(temp));
+                    meanTokens.push(values[0]);  // Mean token count
+                    upperBounds.push(values[1]); // 97.5% value
+                    lowerBounds.push(values[2]); // 2.5% value
+                }
+                
+                // Skip if no valid data points
+                if (temperatures.length === 0) {
+                    console.log(`Skipping prob ${prob}: no valid data points`);
+                    continue;
+                }
+                
+                console.log(`Data for prob ${prob}:`, {
+                    temperatures,
+                    meanTokens,
+                    upperBounds,
+                    lowerBounds
+                });
+                
+                // Sort by temperature
+                let sorted = temperatures.map((t, i) => ({
+                    temp: t,
+                    mean: meanTokens[i],
+                    upper: upperBounds[i],
+                    lower: lowerBounds[i]
+                })).sort((a, b) => a.temp - b.temp);
+                
+                console.log(`Sorted data for prob ${prob}:`, sorted);
+                
+                traces.push({
+                    x: sorted.map(p => p.temp),
+                    y: sorted.map(p => p.mean),
+                    mode: 'lines+markers',
+                    name: parseFloat(prob).toFixed(2),
+                    line: { color: lineColor },
+                    text: sorted.map(p => {
+                        return `Mean: ${p.mean.toFixed(2)}<br>97.5%: ${p.upper}<br>2.5%: ${p.lower}`;
+                    }),
+                    hovertemplate: 'Temperature: %{x}<br>Token Count: %{y:.0f}<br>%{text}<extra></extra>'
+                });
+                
+                console.log(`Added trace for prob ${prob}`);
+
+                if (showErrorBars) {
+                    // Add filled confidence intervals
+                    traces.push({
+                        x: [...sorted.map(p => p.temp), ...sorted.map(p => p.temp).reverse()],
+                        y: [...sorted.map(p => p.upper), ...sorted.map(p => p.lower).reverse()],
+                        fill: 'toself',
+                        fillcolor: lineColor.replace('rgb', 'rgba').replace(')', ', 0.2)'),
+                        line: { width: 0 },
+                        mode: 'none',
+                        showlegend: false,
+                        hoverinfo: 'skip',
+                        name: parseFloat(prob).toFixed(2) + ' CI'
+                    });
+                    console.log(`Added error bars for prob ${prob}`);
+                }
+            }
             
+            console.log(`Final traces:`, traces.length);
+        }
+        
+        function plotAccuracyData(traces, selectedQuestions, selectedProbs, showErrorBars) {
             // Filter uniqueProbs to only include selected probabilities
             let uniqueProbs = selectedProbs.sort((a, b) => parseFloat(a) - parseFloat(b));
 
@@ -231,14 +641,27 @@
                 let temperatureResults = {};
                 
                 for (let question of selectedQuestions) {
-                    if (data[question][prob]) {
-                        for (let [temp, [correct, total]] of Object.entries(data[question][prob])) {
-                            if (!temperatureResults[temp]) {
-                                temperatureResults[temp] = [0, 0];
-                            }
-                            temperatureResults[temp][0] += correct;
-                            temperatureResults[temp][1] += total;
+                    if (!accuracyData[question] || !accuracyData[question][prob]) continue;
+                    
+                    // Verify the data structure before processing
+                    const probData = accuracyData[question][prob];
+                    
+                    for (let temp in probData) {
+                        const value = probData[temp];
+                        
+                        // Check if the value is an array with at least 2 elements
+                        if (!Array.isArray(value) || value.length < 2) continue;
+                        
+                        const [correct, total] = value;
+                        
+                        // Ensure correct and total are numbers
+                        if (typeof correct !== 'number' || typeof total !== 'number') continue;
+                        
+                        if (!temperatureResults[temp]) {
+                            temperatureResults[temp] = [0, 0];
                         }
+                        temperatureResults[temp][0] += correct;
+                        temperatureResults[temp][1] += total;
                     }
                 }
                 
@@ -305,37 +728,6 @@
                     });
                 }
             }
-            
-            // Find the maximum accuracy value including upper confidence bounds
-            const maxAccuracy = Math.max(...traces.flatMap(trace => 
-                Array.isArray(trace.y) ? trace.y : []
-            ));
-            // Add 10% padding above the maximum value, but don't exceed 1
-            const yAxisMax = Math.min(1, maxAccuracy * 1.1);
-            
-            let layout = {
-                title: {
-                    text: customTitle || (showErrorBars 
-                        ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
-                        : 'Accuracy vs Temperature'),
-                    font: { size: 18 }
-                },
-                xaxis: {title: 'Temperature'},
-                yaxis: {
-                    title: customYAxisLabel || 'Accuracy',
-                    range: [0, yAxisMax]
-                },
-                hovermode: 'closest',
-                height: 600,
-                legend: {
-                    title: {
-                        text: 'Doubt Injection Probability',
-                        font: { size: 13 }
-                    }
-                }
-            };
-            
-            Plotly.newPlot('plot', traces, layout);
         }
         
         function selectAll(type) {
@@ -349,6 +741,89 @@
             document.querySelectorAll(`${selector} input[type="checkbox"]`).forEach(cb => cb.checked = false);
             updatePlot();
         }
+        
+        // Function to load sample token data for testing
+        function loadSampleTokenData() {
+            console.log("Loading sample token data...");
+            
+            // Sample token data structure based on the actual data
+            const sampleData = {
+                "0.5": {
+                    "0.6": [2624.11, 10000, 631],
+                    "0.75": [2478.01, 10000, 542],
+                    "0.9": [2553.97, 5626, 430],
+                    "1.0": [2790.3, 5545, 572],
+                    "1.1": [3202.57, 7398, 480],
+                    "0.0": [3936.05, 10000, 778],
+                    "0.25": [2994.65, 10000, 843],
+                    "0.5": [2326.55, 10000, 466],
+                    "1.25": [4494.6, 10000, 420],
+                    "1.5": [9182.6, 10000, 306]
+                },
+                "0.0": {
+                    "0.6": [2492.97, 10000, 435],
+                    "0.75": [2244.27, 5619, 381],
+                    "0.9": [2558.89, 5916, 440],
+                    "1.0": [2375.8, 4716, 448],
+                    "1.1": [3036.61, 6052, 427],
+                    "0.0": [3304.7, 10000, 777],
+                    "0.25": [2044.75, 10000, 444],
+                    "0.5": [2817.05, 10000, 706],
+                    "1.25": [6032.7, 10000, 2143],
+                    "1.5": [8330.55, 10000, 524]
+                }
+            };
+            
+            // Set the token data
+            tokenData = sampleData;
+            accuracyData = null;
+            
+            // Update UI
+            document.getElementById('dataStructureToggle').checked = true;
+            document.getElementById('toggleLabel').textContent = "Token Count Data";
+            document.getElementById('questionSection').style.display = 'none';
+            
+            // Create probability checkboxes
+            const probList = document.getElementById('probList');
+            probList.innerHTML = '';
+            
+            const uniqueProbs = Object.keys(tokenData).sort((a, b) => parseFloat(a) - parseFloat(b));
+            console.log("Unique probabilities from sample token data:", uniqueProbs);
+            
+            for (let prob of uniqueProbs) {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label>
+                        <input type="checkbox" value="${prob}" onclick="updatePlot()" checked>
+                        <span>${parseFloat(prob).toFixed(2)}</span>
+                    </label>
+                `;
+                probList.appendChild(div);
+            }
+            
+            console.log("Sample token data loaded, updating plot...");
+            updatePlot();
+        }
+        
+        // Add a button to load sample data
+        document.addEventListener('DOMContentLoaded', function() {
+            const controlsDiv = document.querySelector('.controls');
+            const loadSampleButton = document.createElement('button');
+            loadSampleButton.textContent = "Load Sample Token Data";
+            loadSampleButton.style.marginTop = "15px";
+            loadSampleButton.style.width = "100%";
+            loadSampleButton.style.padding = "8px";
+            loadSampleButton.style.backgroundColor = "#4CAF50";
+            loadSampleButton.style.color = "white";
+            loadSampleButton.style.border = "none";
+            loadSampleButton.style.borderRadius = "4px";
+            loadSampleButton.style.cursor = "pointer";
+            loadSampleButton.onclick = loadSampleTokenData;
+            
+            // Insert after file input
+            const fileInput = document.querySelector('.file-input');
+            fileInput.parentNode.insertBefore(loadSampleButton, fileInput.nextSibling);
+        });
     </script>
 </body>
 </html> 
