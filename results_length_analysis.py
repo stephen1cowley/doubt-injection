@@ -15,8 +15,9 @@ for file in os.listdir("responses"):
         files.append(file)
 
 
-# question_id -> (doubt_injection_prob -> temperature -> (total # tokens, total #tokens^2, # responses))
-mean_tokens: Dict[str, Dict[str, Dict[str, Tuple[int, int, int]]]] = {}
+# doubt_injection_prob -> temperature -> (mean #tokens, upper 95%, lower 95%)
+tokens_temp: Dict[str, Dict[str, List[int]]] = {}
+mean_tokens: Dict[str, Dict[str, Tuple[float, float, float]]] = {}
 
 
 for file in files:
@@ -39,12 +40,10 @@ for file in files:
             question_id = str(result["question_id"])
 
             # Initialize nested dictionaries for mean_tokens
-            if question_id not in mean_tokens:
-                mean_tokens[question_id] = {}
-            if doubt_injection_prob not in mean_tokens[question_id]:
-                mean_tokens[question_id][doubt_injection_prob] = {}
-            if temperature not in mean_tokens[question_id][doubt_injection_prob]:
-                mean_tokens[question_id][doubt_injection_prob][temperature] = (0, 0, 0)
+            if doubt_injection_prob not in tokens_temp:
+                tokens_temp[doubt_injection_prob] = {}
+            if temperature not in tokens_temp[doubt_injection_prob]:
+                tokens_temp[doubt_injection_prob][temperature] = []
 
             # HARD CODED:
             # cap T=0.75,1.0 at 120
@@ -56,13 +55,19 @@ for file in files:
                 continue
             if temperature in ["0.0", "0.25", "0.5", "1.25", "1.5"] and mean_tokens[question_id][doubt_injection_prob][temperature][2] >= 20:
                 continue
-            # Update counts
-            mean_tokens[question_id][doubt_injection_prob][temperature] = (
-                mean_tokens[question_id][doubt_injection_prob][temperature][0] + result["response_length"],
-                mean_tokens[question_id][doubt_injection_prob][temperature][1] + result["response_length"]**2,
-                mean_tokens[question_id][doubt_injection_prob][temperature][2] + 1,
-            )
 
+            # Update tokens_temp
+            tokens_temp[doubt_injection_prob][temperature].append(result["response_length"])
+
+
+# Now calculate the mean, upper 95%, lower 95%
+for doubt_injection_prob in tokens_temp:
+    for temperature in tokens_temp[doubt_injection_prob]:
+        tokens = tokens_temp[doubt_injection_prob][temperature]
+        mean = sum(tokens) / len(tokens)
+        upper_95 = sorted(tokens)[int(len(tokens) * 0.975)]
+        lower_95 = sorted(tokens)[int(len(tokens) * 0.025)]
+        mean_tokens[doubt_injection_prob][temperature] = (mean, upper_95, lower_95)
 
 # Save results_summary to json
 print(mean_tokens)
