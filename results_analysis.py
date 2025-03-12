@@ -17,6 +17,14 @@ for file in os.listdir("responses"):
 
 # question -> (doubt_injection_prob -> temperature -> (correct, total))
 results_per_question: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
+
+# question -> (doubt_injection_prob -> temperature -> (#exceeding 10k tokens, total))
+exceeding_10k_tokens: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
+
+# question -> (doubt_injection_prob -> temperature -> (#no answer, total))
+no_answer: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
+
+
 for file in files:
     if int(re.sub('[a-zA-Z]', '', file.split("_")[-1].split(".")[0])) < 1740940200:
         # Not interested if it was one of the old results (before 6:30pm 2nd March)
@@ -43,6 +51,22 @@ for file in files:
                 results_per_question[question_id][doubt_injection_prob] = {}
             if temperature not in results_per_question[question_id][doubt_injection_prob]:
                 results_per_question[question_id][doubt_injection_prob][temperature] = (0, 0)
+            
+            # Initialize nested dictionaries for exceeding_10k_tokens
+            if question_id not in exceeding_10k_tokens:
+                exceeding_10k_tokens[question_id] = {}
+            if doubt_injection_prob not in exceeding_10k_tokens[question_id]:
+                exceeding_10k_tokens[question_id][doubt_injection_prob] = {}
+            if temperature not in exceeding_10k_tokens[question_id][doubt_injection_prob]:
+                exceeding_10k_tokens[question_id][doubt_injection_prob][temperature] = (0, 0)
+
+            # Initialize nested dictionaries for no_answer
+            if question_id not in no_answer:
+                no_answer[question_id] = {}
+            if doubt_injection_prob not in no_answer[question_id]:
+                no_answer[question_id][doubt_injection_prob] = {}
+            if temperature not in no_answer[question_id][doubt_injection_prob]:
+                no_answer[question_id][doubt_injection_prob][temperature] = (0, 0)
 
             # HARD CODED:
             # cap T=0.75,1.0 at 120
@@ -64,6 +88,27 @@ for file in files:
                 results_per_question[question_id][doubt_injection_prob][temperature] = (
                     results_per_question[question_id][doubt_injection_prob][temperature][0],
                     results_per_question[question_id][doubt_injection_prob][temperature][1] + 1
+                )
+            if result["response_length"] == 10000:
+                exceeding_10k_tokens[question_id][doubt_injection_prob][temperature] = (
+                    exceeding_10k_tokens[question_id][doubt_injection_prob][temperature][0] + 1,
+                    exceeding_10k_tokens[question_id][doubt_injection_prob][temperature][1] + 1
+                )
+            else:
+                exceeding_10k_tokens[question_id][doubt_injection_prob][temperature] = (
+                    exceeding_10k_tokens[question_id][doubt_injection_prob][temperature][0],
+                    exceeding_10k_tokens[question_id][doubt_injection_prob][temperature][1] + 1
+                )
+
+            if result["llm_answer"] == "X":
+                no_answer[question_id][doubt_injection_prob][temperature] = (
+                    no_answer[question_id][doubt_injection_prob][temperature][0] + 1,
+                    no_answer[question_id][doubt_injection_prob][temperature][1] + 1
+                )
+            else:
+                no_answer[question_id][doubt_injection_prob][temperature] = (
+                    no_answer[question_id][doubt_injection_prob][temperature][0],
+                    no_answer[question_id][doubt_injection_prob][temperature][1] + 1
                 )
 
 # Save results_summary to json
