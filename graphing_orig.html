@@ -85,44 +85,12 @@
             width: 100%;
             font-size: 14px;
         }
-        .toggle-container {
-            display: flex;
-            margin: 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .toggle-button {
-            flex: 1;
-            padding: 8px 0;
-            text-align: center;
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-            border: none;
-            border-right: 1px solid #ddd;
-        }
-        .toggle-button:last-child {
-            border-right: none;
-        }
-        .toggle-button.active {
-            background: #4a69bd;
-            color: white;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="controls">
             <input type="file" accept=".json" class="file-input">
-            
-            <!-- Add data structure toggle -->
-            <h3>Data Visualization:</h3>
-            <div class="toggle-container">
-                <button id="accuracyToggle" class="toggle-button active" onclick="setDataMode('accuracy')">Accuracy</button>
-                <button id="tokenToggle" class="toggle-button" onclick="setDataMode('tokens')">Tokens</button>
-            </div>
             
             <h3>Select Questions:</h3>
             <button onclick="selectAll('questions')">Select All</button>
@@ -162,29 +130,6 @@
     </div>
 
     <script>
-        // Global variable to track current data mode
-        window.dataMode = 'accuracy'; // 'accuracy' or 'tokens'
-        
-        function setDataMode(mode) {
-            window.dataMode = mode;
-            
-            // Update toggle button UI
-            document.getElementById('accuracyToggle').classList.toggle('active', mode === 'accuracy');
-            document.getElementById('tokenToggle').classList.toggle('active', mode === 'tokens');
-            
-            // Update placeholder text based on mode
-            if (mode === 'accuracy') {
-                document.getElementById('chartTitle').placeholder = 'Accuracy vs Temperature';
-                document.getElementById('yAxisLabel').placeholder = 'Accuracy';
-            } else {
-                document.getElementById('chartTitle').placeholder = 'Tokens vs Temperature';
-                document.getElementById('yAxisLabel').placeholder = 'Average Tokens';
-            }
-            
-            // Update the plot
-            updatePlot();
-        }
-        
         // Modify file input handling to use the HTML element
         const fileInput = document.querySelector('.file-input');
         fileInput.addEventListener('change', (event) => {
@@ -271,242 +216,126 @@
                 return `rgb(${colorStops[colorStops.length - 1].color.join(',')})`;
             }
             
-            if (window.dataMode === 'accuracy') {
-                // Original accuracy plotting logic
-                for (let i = 0; i < uniqueProbs.length; i++) {
-                    let prob = uniqueProbs[i];
-                    let temperatures = [];
-                    let accuracies = [];
-                    let correctCounts = [];
-                    let totalCounts = [];
-                    
-                    // Normalize position for color interpolation - reversed order
-                    const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
-                    const lineColor = interpolateColor(normalizedPos);
-                    
-                    // Aggregate results for selected questions
-                    let temperatureResults = {};
-                    
-                    for (let question of selectedQuestions) {
-                        if (data[question][prob]) {
-                            for (let [temp, [correct, total]] of Object.entries(data[question][prob])) {
-                                if (!temperatureResults[temp]) {
-                                    temperatureResults[temp] = [0, 0];
-                                }
-                                temperatureResults[temp][0] += correct;
-                                temperatureResults[temp][1] += total;
+            for (let i = 0; i < uniqueProbs.length; i++) {
+                let prob = uniqueProbs[i];
+                let temperatures = [];
+                let accuracies = [];
+                let correctCounts = [];
+                let totalCounts = [];
+                
+                // Normalize position for color interpolation - reversed order
+                const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
+                const lineColor = interpolateColor(normalizedPos);
+                
+                // Aggregate results for selected questions
+                let temperatureResults = {};
+                
+                for (let question of selectedQuestions) {
+                    if (data[question][prob]) {
+                        for (let [temp, [correct, total]] of Object.entries(data[question][prob])) {
+                            if (!temperatureResults[temp]) {
+                                temperatureResults[temp] = [0, 0];
                             }
+                            temperatureResults[temp][0] += correct;
+                            temperatureResults[temp][1] += total;
                         }
-                    }
-                    
-                    // Convert to arrays for plotting
-                    for (let [temp, [correct, total]] of Object.entries(temperatureResults)) {
-                        temperatures.push(parseFloat(temp));
-                        accuracies.push(correct / total);
-                        correctCounts.push(correct);
-                        totalCounts.push(total);
-                    }
-                    
-                    // Sort by temperature
-                    let sorted = temperatures.map((t, i) => ({
-                        temp: t,
-                        acc: accuracies[i],
-                        correct: correctCounts[i],
-                        total: totalCounts[i]
-                    })).sort((a, b) => a.temp - b.temp);
-                    
-                    traces.push({
-                        x: sorted.map(p => p.temp),
-                        y: sorted.map(p => p.acc),
-                        mode: 'lines+markers',
-                        name: parseFloat(prob).toFixed(2),
-                        line: { color: lineColor },
-                        text: sorted.map(p => {
-                            const alpha = p.correct + 1;
-                            const beta = (p.total - p.correct) + 1;
-                            return `Correct: ${p.correct}<br>Total: ${p.total}<br>Beta(${alpha}, ${beta})`;
-                        }),
-                        hovertemplate: 'Temperature: %{x}<br>Accuracy: %{y:.3f}<br>%{text}<extra></extra>'
-                    });
-
-                    if (showErrorBars) {
-                        // Calculate Beta distribution confidence intervals
-                        // For each point, we have a Beta(α, β) distribution where:
-                        // α = number of successes + 1 (adding 1 for Bayesian prior)
-                        // β = number of failures + 1 (adding 1 for Bayesian prior)
-                        
-                        // Calculate 95% confidence intervals using Beta distribution
-                        const lowerBounds = sorted.map(p => {
-                            const alpha = p.correct + 1; // Add 1 to match the Beta distribution
-                            const beta = (p.total - p.correct) + 1; // Add 1 to match the Beta distribution
-                            return jStat.beta.inv(0.025, alpha, beta); // 2.5% quantile
-                        });
-                        
-                        const upperBounds = sorted.map(p => {
-                            const alpha = p.correct + 1; // Add 1 to match the Beta distribution
-                            const beta = (p.total - p.correct) + 1; // Add 1 to match the Beta distribution
-                            return jStat.beta.inv(0.975, alpha, beta); // 97.5% quantile
-                        });
-                        
-                        // Add filled confidence intervals
-                        traces.push({
-                            x: [...sorted.map(p => p.temp), ...sorted.map(p => p.temp).reverse()],
-                            y: [...upperBounds, ...lowerBounds.reverse()],
-                            fill: 'toself',
-                            fillcolor: lineColor.replace('rgb', 'rgba').replace(')', ', 0.2)'),
-                            line: { width: 0 },
-                            mode: 'none',
-                            showlegend: false,
-                            hoverinfo: 'skip',
-                            name: parseFloat(prob).toFixed(2) + ' CI'
-                        });
                     }
                 }
                 
-                // Find the maximum accuracy value including upper confidence bounds
-                const maxAccuracy = Math.max(...traces.flatMap(trace => 
-                    Array.isArray(trace.y) ? trace.y : []
-                ));
-                // Add 10% padding above the maximum value, but don't exceed 1
-                const yAxisMax = Math.min(1, maxAccuracy * 1.1);
-                
-                let layout = {
-                    title: {
-                        text: customTitle || (showErrorBars 
-                            ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
-                            : 'Accuracy vs Temperature'),
-                        font: { size: 18 }
-                    },
-                    xaxis: {title: 'Temperature'},
-                    yaxis: {
-                        title: customYAxisLabel || 'Accuracy',
-                        range: [0, yAxisMax]
-                    },
-                    hovermode: 'closest',
-                    height: 600,
-                    legend: {
-                        title: {
-                            text: 'Doubt Injection Probability',
-                            font: { size: 13 }
-                        }
-                    }
-                };
-                
-                Plotly.newPlot('plot', traces, layout);
-            } else {
-                // Token visualization logic
-                for (let i = 0; i < uniqueProbs.length; i++) {
-                    let prob = uniqueProbs[i];
-                    let temperatures = [];
-                    let meanTokens = [];
-                    let stdDevs = [];
-                    let sampleCounts = [];
-                    
-                    // Normalize position for color interpolation - reversed order
-                    const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
-                    const lineColor = interpolateColor(normalizedPos);
-                    
-                    // Aggregate results for selected questions
-                    let temperatureResults = {};
-                    
-                    for (let question of selectedQuestions) {
-                        if (data[question][prob]) {
-                            for (let [temp, [totalTokens, totalTokensSquared, count]] of Object.entries(data[question][prob])) {
-                                if (!temperatureResults[temp]) {
-                                    temperatureResults[temp] = [0, 0, 0];
-                                }
-                                temperatureResults[temp][0] += totalTokens;
-                                temperatureResults[temp][1] += totalTokensSquared;
-                                temperatureResults[temp][2] += count;
-                            }
-                        }
-                    }
-                    
-                    // Convert to arrays for plotting
-                    for (let [temp, [totalTokens, totalTokensSquared, count]] of Object.entries(temperatureResults)) {
-                        if (count > 0) {
-                            const mean = totalTokens / count;
-                            // Calculate standard deviation using the formula: σ = sqrt(E[X²] - (E[X])²)
-                            const meanOfSquares = totalTokensSquared / count;
-                            const variance = meanOfSquares - (mean * mean);
-                            const stdDev = Math.sqrt(Math.max(0, variance)); // Ensure non-negative
-                            
-                            temperatures.push(parseFloat(temp));
-                            meanTokens.push(mean);
-                            stdDevs.push(stdDev);
-                            sampleCounts.push(count);
-                        }
-                    }
-                    
-                    // Sort by temperature
-                    let sorted = temperatures.map((t, i) => ({
-                        temp: t,
-                        mean: meanTokens[i],
-                        stdDev: stdDevs[i],
-                        count: sampleCounts[i]
-                    })).sort((a, b) => a.temp - b.temp);
-                    
-                    traces.push({
-                        x: sorted.map(p => p.temp),
-                        y: sorted.map(p => p.mean),
-                        mode: 'lines+markers',
-                        name: parseFloat(prob).toFixed(2),
-                        line: { color: lineColor },
-                        text: sorted.map(p => `Count: ${p.count}<br>StdDev: ${p.stdDev.toFixed(2)}`),
-                        hovertemplate: 'Temperature: %{x}<br>Mean Tokens: %{y:.1f}<br>%{text}<extra></extra>'
-                    });
-
-                    if (showErrorBars) {
-                        // Add error bars using standard deviation (±2σ for ~95% confidence)
-                        const upperBounds = sorted.map(p => p.mean + 2 * p.stdDev);
-                        const lowerBounds = sorted.map(p => Math.max(0, p.mean - 2 * p.stdDev)); // Ensure non-negative
-                        
-                        // Add filled confidence intervals
-                        traces.push({
-                            x: [...sorted.map(p => p.temp), ...sorted.map(p => p.temp).reverse()],
-                            y: [...upperBounds, ...lowerBounds.reverse()],
-                            fill: 'toself',
-                            fillcolor: lineColor.replace('rgb', 'rgba').replace(')', ', 0.2)'),
-                            line: { width: 0 },
-                            mode: 'none',
-                            showlegend: false,
-                            hoverinfo: 'skip',
-                            name: parseFloat(prob).toFixed(2) + ' CI'
-                        });
-                    }
+                // Convert to arrays for plotting
+                for (let [temp, [correct, total]] of Object.entries(temperatureResults)) {
+                    temperatures.push(parseFloat(temp));
+                    accuracies.push(correct / total);
+                    correctCounts.push(correct);
+                    totalCounts.push(total);
                 }
                 
-                // Find the maximum token value including upper confidence bounds
-                const maxTokens = Math.max(...traces.flatMap(trace => 
-                    Array.isArray(trace.y) ? trace.y : []
-                ));
-                // Add 10% padding above the maximum value
-                const yAxisMax = maxTokens * 1.1;
+                // Sort by temperature
+                let sorted = temperatures.map((t, i) => ({
+                    temp: t,
+                    acc: accuracies[i],
+                    correct: correctCounts[i],
+                    total: totalCounts[i]
+                })).sort((a, b) => a.temp - b.temp);
                 
-                let layout = {
-                    title: {
-                        text: customTitle || (showErrorBars 
-                            ? 'Mean Tokens vs Temperature<br><span style="font-size:12px">Shaded areas represent ±2 standard deviations</span>'
-                            : 'Mean Tokens vs Temperature'),
-                        font: { size: 18 }
-                    },
-                    xaxis: {title: 'Temperature'},
-                    yaxis: {
-                        title: customYAxisLabel || 'Mean Tokens',
-                        range: [0, yAxisMax]
-                    },
-                    hovermode: 'closest',
-                    height: 600,
-                    legend: {
-                        title: {
-                            text: 'Doubt Injection Probability',
-                            font: { size: 13 }
-                        }
-                    }
-                };
-                
-                Plotly.newPlot('plot', traces, layout);
+                traces.push({
+                    x: sorted.map(p => p.temp),
+                    y: sorted.map(p => p.acc),
+                    mode: 'lines+markers',
+                    name: parseFloat(prob).toFixed(2),
+                    line: { color: lineColor },
+                    text: sorted.map(p => {
+                        const alpha = p.correct + 1;
+                        const beta = (p.total - p.correct) + 1;
+                        return `Correct: ${p.correct}<br>Total: ${p.total}<br>Beta(${alpha}, ${beta})`;
+                    }),
+                    hovertemplate: 'Temperature: %{x}<br>Accuracy: %{y:.3f}<br>%{text}<extra></extra>'
+                });
+
+                if (showErrorBars) {
+                    // Calculate Beta distribution confidence intervals
+                    // For each point, we have a Beta(α, β) distribution where:
+                    // α = number of successes + 1 (adding 1 for Bayesian prior)
+                    // β = number of failures + 1 (adding 1 for Bayesian prior)
+                    
+                    // Calculate 95% confidence intervals using Beta distribution
+                    const lowerBounds = sorted.map(p => {
+                        const alpha = p.correct + 1; // Add 1 to match the Beta distribution
+                        const beta = (p.total - p.correct) + 1; // Add 1 to match the Beta distribution
+                        return jStat.beta.inv(0.025, alpha, beta); // 2.5% quantile
+                    });
+                    
+                    const upperBounds = sorted.map(p => {
+                        const alpha = p.correct + 1; // Add 1 to match the Beta distribution
+                        const beta = (p.total - p.correct) + 1; // Add 1 to match the Beta distribution
+                        return jStat.beta.inv(0.975, alpha, beta); // 97.5% quantile
+                    });
+                    
+                    // Add filled confidence intervals
+                    traces.push({
+                        x: [...sorted.map(p => p.temp), ...sorted.map(p => p.temp).reverse()],
+                        y: [...upperBounds, ...lowerBounds.reverse()],
+                        fill: 'toself',
+                        fillcolor: lineColor.replace('rgb', 'rgba').replace(')', ', 0.2)'),
+                        line: { width: 0 },
+                        mode: 'none',
+                        showlegend: false,
+                        hoverinfo: 'skip',
+                        name: parseFloat(prob).toFixed(2) + ' CI'
+                    });
+                }
             }
+            
+            // Find the maximum accuracy value including upper confidence bounds
+            const maxAccuracy = Math.max(...traces.flatMap(trace => 
+                Array.isArray(trace.y) ? trace.y : []
+            ));
+            // Add 10% padding above the maximum value, but don't exceed 1
+            const yAxisMax = Math.min(1, maxAccuracy * 1.1);
+            
+            let layout = {
+                title: {
+                    text: customTitle || (showErrorBars 
+                        ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
+                        : 'Accuracy vs Temperature'),
+                    font: { size: 18 }
+                },
+                xaxis: {title: 'Temperature'},
+                yaxis: {
+                    title: customYAxisLabel || 'Accuracy',
+                    range: [0, yAxisMax]
+                },
+                hovermode: 'closest',
+                height: 600,
+                legend: {
+                    title: {
+                        text: 'Doubt Injection Probability',
+                        font: { size: 13 }
+                    }
+                }
+            };
+            
+            Plotly.newPlot('plot', traces, layout);
         }
         
         function selectAll(type) {

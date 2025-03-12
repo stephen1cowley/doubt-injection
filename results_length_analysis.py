@@ -15,10 +15,10 @@ for file in os.listdir("responses"):
         files.append(file)
 
 
-# doubt_injection_prob -> temperature -> (mean #tokens, upper 95%, lower 95%)
-tokens_temp: Dict[str, Dict[str, List[int]]] = {}
+# doubt_injection_prob -> temperature -> (mean #tokens, 97.5% value, 2.5% value)
 mean_tokens: Dict[str, Dict[str, Tuple[float, float, float]]] = {}
 
+tokens_temp: Dict[str, Dict[str, List[int]]] = {}
 
 for file in files:
     if int(re.sub('[a-zA-Z]', '', file.split("_")[-1].split(".")[0])) < 1740940200:
@@ -38,6 +38,10 @@ for file in files:
             temperature = str(result["temperature"])
             doubt_injection_prob = str(result["doubt_injection_prob"])
             question_id = str(result["question_id"])
+            if question_id not in ["1", "2", "3", "8", "9", "10"]:
+                continue
+            if doubt_injection_prob not in ["0.0", "0.5"]:
+                continue
 
             # Initialize nested dictionaries for mean_tokens
             if doubt_injection_prob not in tokens_temp:
