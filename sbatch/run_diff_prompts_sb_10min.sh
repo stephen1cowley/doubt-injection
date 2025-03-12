@@ -7,9 +7,9 @@ injection_strings=(
 )
 
 for injection_string in "${injection_strings[@]}"; do
-    for _ in {1..10}; do
-        for i in 1 2 3 8 9 10; do
-            sbatch simplebench_eval_10mins.wilkes3 $i 25 1.0 "$injection_string"
+    for _ in 1; do
+        for i in 1; do
+            sbatch simplebench_eval_10mins.wilkes3 $i 25 1.0 "'$injection_string'"
         done
     done
 done
