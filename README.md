@@ -42,6 +42,7 @@ But wait, let me think again.  because 15 isn't an option, so I must have made a
 - Unfortunately means initial results were a bit of a waste...?
 - Reading the responses was critical to spotting this issue...
 - YES, problem now solved.
+- Tokens for the start of a word like to first start with a space!!
 
 
 - The dream: 100 reponses for each, not 10.
