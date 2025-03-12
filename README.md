@@ -80,8 +80,10 @@ Want to get nice, polished results, that tell a story.
 
 
 ## TODO
-- Equal weighting of the 6 questions, for fair comparisons!
-- Same graph but response length
+- Same graph but response length <----- (easy nice graph)
+
+- 5 or so different injection strings, try at T=1.0 only. (Aim is to find anything that improves!)
+- Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task).
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
@@ -92,3 +94,4 @@ Want to get nice, polished results, that tell a story.
 - TEST whether new injection solves problem!!
 - Create plots, do a write up plus plan for final 2 weeks
 - 50 responses at each temperature for DeepSeek on 10 simplebench questions
+- Equal weighting of the 6 questions, for fair comparisons!
