@@ -184,7 +184,8 @@ def main():
             question_id=question_id+1,
             top_p=top_p,
             prompt_name=prompt_name,
-            doubt_injection_prob=doubt_injection_prob
+            doubt_injection_prob=doubt_injection_prob,
+            injection_string=injection_string
         )
         results.append(result)
 

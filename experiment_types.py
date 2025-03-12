@@ -12,3 +12,4 @@ class ExperimentResult:
     top_p: float
     prompt_name: str
     doubt_injection_prob: float
+    injection_string: str
