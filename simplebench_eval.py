@@ -39,6 +39,7 @@ def main():
     question_id: int = args.q_id - 1
     doubt_injection_prob: float = args.doubt_injection / 100
     injection_string: str = args.injection_string
+    print(f"Injection string: {injection_string}")
 
     # Load questions
     with open("simplebench/simplebench.json", "r") as f:
@@ -86,7 +87,6 @@ def main():
 
     # Set doubtful statement
     if args.doubt_injection:
-        injection_string: str = "But wait, let me think again."
         doubtful_statement_ids: torch.Tensor = tokenizer.encode(
             injection_string, return_tensors="pt").to(model.device)
 
