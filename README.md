@@ -78,6 +78,9 @@ Want to get nice, polished results, that tell a story.
 - Set up deepseek on NQ.
 - Test effect of add-CAD in the CoT.
 
+### Thesis notes
+- Good graph size for 1 column graph: 500x450px, then cropped.
+
 
 ## TODO
 - 5 or so different injection strings, try at T=1.0 only. (Aim is to find anything that improves!)
@@ -85,7 +88,7 @@ Want to get nice, polished results, that tell a story.
 - Need *some* sort of literature review on CoT? Would be nice on background motivating that sort of stuff.
 - Also *some* mini lit review on effect of temperature across different tasks!
 - From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse!
-
+- THink about what I've done this term. What will create a high-quality, coherent, backed, reasoned, thoughtful, results-driven project? (Final Project report).
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
