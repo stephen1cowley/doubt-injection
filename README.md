@@ -80,7 +80,7 @@ Want to get nice, polished results, that tell a story.
 
 ### Thesis notes
 - Good graph size for 1 column graph: 500x450px, then cropped.
-
+- To change char width `if (text && text.length > 20) {`
 
 ## TODO
 - 5 or so different injection strings, try at T=1.0 only. (Aim is to find anything that improves!)
