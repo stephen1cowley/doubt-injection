@@ -91,7 +91,7 @@ Want to get nice, polished results, that tell a story.
 - Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task.) <--- By Tuesday
 
 ### Tomorrow:
-- Collate results from overnight experiment
+- Collate results from overnight experiment, make graph, discuss it in thesis draft format.
 - From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse! <---- Not difficult!!!
 
 

@@ -61,6 +61,7 @@
 - Let $a_{|}$ represent the accuracy
 
 ### 3.2.4 Models
+- Reference the DeepSeek paper with small background on where the model has come from.
 
 ### 3.2.5 Nucleus Setting (top-p)
 - Equation
