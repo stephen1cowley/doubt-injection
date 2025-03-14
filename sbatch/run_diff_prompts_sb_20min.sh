@@ -1,8 +1,8 @@
 # q_id, doubt_injection, temperature csv, injection_string
 injection_strings=(
-    "But wait, I shouldn't assume a question is easy just because it seems so at first."
-    "But wait, I should think about the real world."
-    "But wait, the question may be a trick question."
+    # "But wait, I shouldn't assume a question is easy just because it seems so at first."
+    # "But wait, I should think about the real world."
+    # "But wait, the question may be a trick question."
     "I'm confused."
 )
 
