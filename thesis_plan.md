@@ -74,6 +74,7 @@
 ### 3.3.4 Effect of Temperature
 
 ### 3.3.5 Effect of Injection String
+- We are therefore e.g. 72% certain that the injection string "I'm confused" has a higher accuracy than no injection string at all.
 
 # 4 Conclusions
 

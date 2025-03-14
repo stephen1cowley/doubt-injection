@@ -6,24 +6,24 @@ injection_strings=(
     "I'm confused."
 )
 
-sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "I'm confused."
-sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "I'm confused."
-sbatch simplebench_eval_20mins.wilkes3 1 25 1.0 "I'm confused."
+sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "\"I'm confused.\""
+sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "\"I'm confused.\""
+sbatch simplebench_eval_20mins.wilkes3 1 25 1.0 "\"I'm confused.\""
 
-sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "But wait, the question may be a trick question."
-sbatch simplebench_eval_20mins.wilkes3 3 25 1.0 "But wait, the question may be a trick question."
-sbatch simplebench_eval_20mins.wilkes3 8 25 1.0 "But wait, the question may be a trick question."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, the question may be a trick question."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, the question may be a trick question."
-sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "But wait, the question may be a trick question."
-sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "But wait, the question may be a trick question."
+sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "\"But wait, the question may be a trick question.\""
+sbatch simplebench_eval_20mins.wilkes3 3 25 1.0 "\"But wait, the question may be a trick question.\""
+sbatch simplebench_eval_20mins.wilkes3 8 25 1.0 "\"But wait, the question may be a trick question.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, the question may be a trick question.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, the question may be a trick question.\""
+sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, the question may be a trick question.\""
+sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, the question may be a trick question.\""
 
-sbatch simplebench_eval_20mins.wilkes3 3 25 1.0 "But wait, I shouldn't assume a question is easy just because it seems so at first."
-sbatch simplebench_eval_20mins.wilkes3 8 25 1.0 "But wait, I shouldn't assume a question is easy just because it seems so at first."
+sbatch simplebench_eval_20mins.wilkes3 3 25 1.0 "\"But wait, I shouldn't assume a question is easy just because it seems so at first.\""
+sbatch simplebench_eval_20mins.wilkes3 8 25 1.0 "\"But wait, I shouldn't assume a question is easy just because it seems so at first.\""
 
-sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "But wait, I should think about the real world."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, I should think about the real world."
-sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "But wait, I should think about the real world."
+sbatch simplebench_eval_20mins.wilkes3 2 25 1.0 "\"But wait, I should think about the real world.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, I should think about the real world.\""
+sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, I should think about the real world.\""
 
 for i in 1 2 3 8 9 10; do
     for _ in {1..30}; do
@@ -31,9 +31,9 @@ for i in 1 2 3 8 9 10; do
     done
 done
 
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, let me think again."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, let me think again."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, let me think again."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, let me think again."
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But wait, let me think again."
-sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "But wait, let me think again."
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
+sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
+sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, let me think again.\""
