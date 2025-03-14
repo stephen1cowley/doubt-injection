@@ -13,7 +13,7 @@
         }
         .container {
             display: flex;
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             height: 100vh;
         }
@@ -25,6 +25,7 @@
             overflow-y: auto;
             height: 100vh;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
         .controls h3 {
             font-weight: 600;
@@ -51,6 +52,7 @@
             flex-grow: 1;
             padding: 20px;
             height: 100%;
+            overflow: auto;
         }
         .checkbox-list {
             max-height: 200px;
@@ -168,13 +170,6 @@
             <button onclick="deselectAll('probs')">Deselect All</button>
             <div class="checkbox-list" id="probList"></div>
 
-            <div style="margin: 15px 0;">
-                <label>
-                    <input type="checkbox" id="showErrorBars" onclick="updatePlot()">
-                    Show Error Bars
-                </label>
-            </div>
-            
             <!-- Add customization controls for title and y-axis -->
             <h3>Customize Chart:</h3>
             <div style="margin-bottom: 15px;">
@@ -189,6 +184,47 @@
                 <input type="text" id="yAxisLabel" placeholder="Accuracy" 
                        style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
                        onchange="updatePlot()">
+            </div>
+            
+            <!-- Add display options -->
+            <h3>Display Options:</h3>
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="showTitle" checked onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
+                    <span>Show Title</span>
+                </label>
+                
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="showLegend" checked onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
+                    <span>Show Legend</span>
+                </label>
+                
+                <label style="display: flex; align-items: center;">
+                    <input type="checkbox" id="showErrorBars" onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
+                    <span>Show Error Bars</span>
+                </label>
+            </div>
+            
+            <!-- Add plot size controls -->
+            <h3>Plot Size:</h3>
+            <div style="margin-bottom: 15px;">
+                <label for="plotWidth" style="display: block; margin-bottom: 5px;">Plot Width (px):</label>
+                <input type="number" id="plotWidth" placeholder="800" min="300" max="2000" step="50" value="800"
+                       style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                       onchange="updatePlot()">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="plotHeight" style="display: block; margin-bottom: 5px;">Plot Height (px):</label>
+                <input type="number" id="plotHeight" placeholder="600" min="300" max="1500" step="50" value="600"
+                       style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                       onchange="updatePlot()">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <button id="resetDimensions" style="width: 100%; padding: 8px; background-color: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                    Reset Plot Size to Default
+                </button>
             </div>
         </div>
         <div class="graph" id="plot"></div>
@@ -431,8 +467,12 @@
                 // Add 10% padding above the maximum value
                 const yAxisMax = isTokenMode ? maxY * 1.1 : Math.min(1, maxY * 1.1);
                 
+                // Get display options
+                const showTitle = document.getElementById('showTitle').checked;
+                const showLegend = document.getElementById('showLegend').checked;
+                
                 let layout = {
-                    title: {
+                    title: showTitle ? {
                         text: customTitle || (isTokenMode 
                             ? (showErrorBars 
                                 ? 'Token Count vs Temperature<br><span style="font-size:12px">Shaded areas represent interquartile range</span>'
@@ -441,20 +481,33 @@
                                 ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
                                 : 'Accuracy vs Temperature')),
                         font: { size: 18 }
+                    } : null,
+                    xaxis: {
+                        title: {
+                            text: 'Temperature',
+                            standoff: 5
+                        },
                     },
-                    xaxis: {title: 'Temperature'},
                     yaxis: {
-                        title: customYAxisLabel || (isTokenMode ? 'Token Count' : 'Accuracy'),
+                        title: {
+                            text: customYAxisLabel || (isTokenMode ? 'Token Count' : 'Accuracy'),
+                            standoff: 5
+                        },
                         range: isTokenMode ? null : [0, yAxisMax]
                     },
                     hovermode: 'closest',
-                    height: 600,
-                    legend: {
+                    height: parseInt(document.getElementById('plotHeight').value) || 600,
+                    width: parseInt(document.getElementById('plotWidth').value) || 800,
+                    showlegend: showLegend,
+                    font: {
+                        color: '#000000'  // Black color for all text
+                    },
+                    legend: showLegend ? {
                         title: {
                             text: 'Doubt Injection Probability',
                             font: { size: 13 }
                         }
-                    }
+                    } : {}
                 };
                 
                 console.log("Plotting with layout:", layout);
@@ -562,8 +615,6 @@
                     upper: upperBounds[i],
                     lower: lowerBounds[i]
                 })).sort((a, b) => a.temp - b.temp);
-                
-                console.log(`Sorted data for prob ${prob}:`, sorted);
                 
                 traces.push({
                     x: sorted.map(p => p.temp),
@@ -823,6 +874,25 @@
             // Insert after file input
             const fileInput = document.querySelector('.file-input');
             fileInput.parentNode.insertBefore(loadSampleButton, fileInput.nextSibling);
+            
+            // Set default values for plot dimensions
+            document.getElementById('plotWidth').value = Math.min(800, window.innerWidth - 250);
+            document.getElementById('plotHeight').value = Math.min(600, window.innerHeight - 50);
+            
+            // Add reset dimensions button event listener
+            document.getElementById('resetDimensions').addEventListener('click', function() {
+                document.getElementById('plotWidth').value = Math.min(800, window.innerWidth - 250);
+                document.getElementById('plotHeight').value = Math.min(600, window.innerHeight - 50);
+                updatePlot();
+            });
+        });
+        
+        // Add window resize handler
+        window.addEventListener('resize', function() {
+            // Only update if the plot is already displayed
+            if (document.getElementById('plot').innerHTML !== '') {
+                updatePlot();
+            }
         });
     </script>
 </body>
