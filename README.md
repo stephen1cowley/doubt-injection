@@ -86,11 +86,14 @@ Want to get nice, polished results, that tell a story.
 
 ## TODO
 - 5 or so different injection strings, try at T=1.0 only. (Aim is to find anything that improves!)
-- Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task.)
-- Need *some* sort of literature review on CoT? Would be nice on background motivating that sort of stuff.
-- Also *some* mini lit review on effect of temperature across different tasks!
-- From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse! <---- Not difficult!!!
+- Need *some* sort of literature review on CoT/effect of temperature? Would be nice on background motivating that sort of stuff.
 - THink about what I've done this term. What will create a high-quality, coherent, backed, reasoned, thoughtful, results-driven project? (Final Project report).
+- Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task.) <--- By Tuesday
+
+### Tomorrow:
+- Collate results from overnight experiment
+- From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse! <---- Not difficult!!!
+
 
 ## DONE
 - Cleaner that removes all machine files etc to a different folder, including chmod +x
