@@ -80,6 +80,8 @@ Want to get nice, polished results, that tell a story.
 
 ### Thesis notes
 - Good graph size for 1 column graph: 500x450px, then cropped.
+- 2 col: 1000x600px
+- Always snipping tool.
 - To change char width `if (text && text.length > 20) {`
 
 ## TODO
@@ -87,7 +89,7 @@ Want to get nice, polished results, that tell a story.
 - Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task.)
 - Need *some* sort of literature review on CoT? Would be nice on background motivating that sort of stuff.
 - Also *some* mini lit review on effect of temperature across different tasks!
-- From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse!
+- From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse! <---- Not difficult!!!
 - THink about what I've done this term. What will create a high-quality, coherent, backed, reasoned, thoughtful, results-driven project? (Final Project report).
 
 ## DONE

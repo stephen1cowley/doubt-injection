@@ -20,7 +20,7 @@
 
 ## 1.3 Objectives
 
-# 2 Addressing Contrastive Decoding Issues with Additive Context-aware Decoding
+# 2 Additive Context-aware Decoding to Address Contrastive Decoding Issues
 
 ## 2.1 Theory
 
@@ -57,6 +57,8 @@
 - AVG@X
 
 ### 3.2.3 Evaluating Error (Beta distribution)
+- Provided equal weighting of questions
+- Let $a_{|}$ represent the accuracy
 
 ### 3.2.4 Models
 
@@ -69,12 +71,12 @@
 
 ### 3.3.2 Substring Extraction
 
-### 3.3.3 Idea Space Exploration
+### 3.3.3 Exploration of Idea Space
 
 ### 3.3.4 Effect of Temperature
 
 ### 3.3.5 Effect of Injection String
-- We are therefore e.g. 72% certain that the injection string "I'm confused" has a higher accuracy than no injection string at all.
+- We are therefore 69% certain that the injecting the string "I'm confused" after a new paragraph with 25% probability has a higher accuracy on this dataset than no injection at all.
 
 # 4 Conclusions
 
