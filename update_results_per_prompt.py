@@ -19,7 +19,8 @@ for question_id in results_per_prompt:
             if doubt_injection_prob == "0.0":
                 results_per_prompt[question_id]["(None)"] = results_per_question_even_weights[question_id][doubt_injection_prob][temperature]
             elif doubt_injection_prob == "0.25":
-                results_per_prompt[question_id]["But wait, let me think again."] = results_per_question_even_weights[question_id][doubt_injection_prob][temperature]
+                results_per_prompt[question_id]["But wait, let me think again."][0] += results_per_question_even_weights[question_id][doubt_injection_prob][temperature][0]
+                results_per_prompt[question_id]["But wait, let me think again."][1] += results_per_question_even_weights[question_id][doubt_injection_prob][temperature][1]
 
 
 with open("results_per_prompt_updated.json", "w") as f:
