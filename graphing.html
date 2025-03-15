@@ -610,9 +610,12 @@
                                  traces[0].x.map((_, i) => i) : undefined, // Position ticks at bar positions
                         ticktext: isBarChartMode && traces.length > 0 && traces[0].x ? 
                                  traces[0].x.map(text => {
-                                    const max_line_length = 35
+                                    const max_line_length = 20
                                      if (text && text.length > max_line_length) {
                                          // Split text only at spaces instead of arbitrary character positions
+                                         if (text != '(None)') {
+                                            text = '\"' + text + '\"'
+                                         }
                                          const words = text.split(' ');
                                          let lines = [];
                                          let currentLine = '';
