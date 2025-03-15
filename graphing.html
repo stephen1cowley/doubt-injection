@@ -611,11 +611,11 @@
                         ticktext: isBarChartMode && traces.length > 0 && traces[0].x ? 
                                  traces[0].x.map(text => {
                                     const max_line_length = 20
-                                     if (text && text.length > max_line_length) {
-                                         // Split text only at spaces instead of arbitrary character positions
-                                         if (text != '(None)') {
+                                    if (text != '(None)') {
                                             text = '\"' + text + '\"'
                                          }
+                                     if (text && text.length > max_line_length) {
+                                         // Split text only at spaces instead of arbitrary character positions
                                          const words = text.split(' ');
                                          let lines = [];
                                          let currentLine = '';
@@ -1042,7 +1042,7 @@
                 marker: {
                     color: sorted.map(p => {
                         // Make "None" bars blue, all others red
-                        return p.injection === "(None)" ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
+                        return p.injection === "(None)" ? 'rgba(0, 0, 255, 0.5)' : 'rgba(255, 0, 0, 0.5)';
                     })
                 },
                 width: useWideBar ? barWidth : undefined

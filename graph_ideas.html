@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ideas Analysis by Temperature</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2f3640;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 16px;
+            margin-top: 0;
+        }
+        .chart-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+        .controls {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .controls h3 {
+            font-weight: 600;
+            color: #2f3640;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 28px;
+            margin-right: 10px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(32px);
+        }
+        .toggle-label {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ideas Analysis by Temperature</h1>
+            <p>Comparing frequency of different ideas across temperature settings</p>
+        </div>
+        
+        <div class="controls">
+            <h3>Display Options</h3>
+            
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sortToggle" onclick="updateChart()">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Sort by Frequency</span>
+            </div>
+            
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="percentageToggle" onclick="updateChart()">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Show as Percentage</span>
+            </div>
+        </div>
+        
+        <div class="chart-wrapper">
+            <div class="chart" id="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data from the provided information
+        const IDEAS_LIST = [
+            "'the farmer returning alone'",
+            "'the setup in the classic version being different'",
+            "'the farmer's presence prevents adverse interactions'",
+            "'the puzzle is unsolvable'",
+            "'I'm confused'",
+            "'the wolf and cabbage start on the left'",
+            "'the solution seems too simple'",
+            "7 numbered steps to solve the puzzle"
+        ];
+        
+        const data_orig = {
+            "0.7": [39, 4, 10, 2, 9, 37, 3, 31],
+            "0.9": [43, 4, 29, 7, 10, 38, 7, 26],
+            "1.1": [36, 12, 31, 10, 22, 33, 16, 23],
+        };
+
+        // Normalised to form probability distribution
+        const data = {
+            "0.7": data_orig["0.7"].map(x => x / data_orig["0.7"].reduce((sum, val) => sum + val, 0)),
+            "0.9": data_orig["0.9"].map(x => x / data_orig["0.9"].reduce((sum, val) => sum + val, 0)),
+            "1.1": data_orig["1.1"].map(x => x / data_orig["1.1"].reduce((sum, val) => sum + val, 0)),
+        };
+
+
+
+        
+        const pleasant_order = [1, 7, 5, 0, 2, 4, 6, 3];
+        
+        // Function to interpolate between colors
+        function interpolateColor(value, startColor, midColor, endColor) {
+            // Convert value to a position between 0 and 1
+            const position = value / (IDEAS_LIST.length - 1);
+            
+            let r, g, b;
+            
+            if (position < 0.5) {
+                // Interpolate between startColor and midColor
+                const t = position * 2; // Scale to 0-1 range for this segment
+                r = Math.round(startColor[0] + t * (midColor[0] - startColor[0]));
+                g = Math.round(startColor[1] + t * (midColor[1] - startColor[1]));
+                b = Math.round(startColor[2] + t * (midColor[2] - startColor[2]));
+            } else {
+                // Interpolate between midColor and endColor
+                const t = (position - 0.5) * 2; // Scale to 0-1 range for this segment
+                r = Math.round(midColor[0] + t * (endColor[0] - midColor[0]));
+                g = Math.round(midColor[1] + t * (endColor[1] - midColor[1]));
+                b = Math.round(midColor[2] + t * (endColor[2] - midColor[2]));
+            }
+            
+            return `rgba(${r}, ${g}, ${b}, 0.5)`;
+        }
+        
+        // Function to format legend text to be multi-line
+        function formatLegendText(text) {
+            // Remove the surrounding quotes if they exist
+            text = text.replace(/^'|'$/g, '');
+            
+            // Split the text into words
+            const words = text.split(' ');
+            let result = '';
+            let line = '';
+            
+            // Create lines with approximately 15-20 characters
+            for (let i = 0; i < words.length; i++) {
+                if (line.length + words[i].length > 30) {
+                    result += line + '<br>';
+                    line = words[i] + ' ';
+                } else {
+                    line += words[i] + ' ';
+                }
+            }
+            
+            // Add the last line
+            result += line;
+            
+            return result;
+        }
+        
+        // Function to create and update the chart
+        function updateChart() {
+            const sortByFrequency = document.getElementById('sortToggle').checked;
+            const showAsPercentage = document.getElementById('percentageToggle').checked;
+            
+            // Define color gradient (red -> magenta -> blue)
+            const startColor = [255, 0, 0];    // Red
+            const midColor = [255, 0, 255];    // Magenta
+            const endColor = [0, 0, 255];      // Blue
+            
+            // Prepare data for plotting
+            let traces = [];
+            
+            // Get the order of ideas to display
+            let orderedIndices;
+            if (sortByFrequency) {
+                // Sort by average frequency across all temperatures
+                const avgValues = IDEAS_LIST.map((_, i) => {
+                    const sum = Object.values(data).reduce((acc, tempData) => acc + tempData[i], 0);
+                    return sum / Object.keys(data).length;
+                });
+                
+                // Create array of indices sorted by average value
+                orderedIndices = Array.from(Array(IDEAS_LIST.length).keys())
+                    .sort((a, b) => avgValues[b] - avgValues[a]);
+            } else {
+                // Use the pleasant order provided
+                orderedIndices = pleasant_order;
+            }
+            
+            // Create a trace for each temperature
+            const temperatures = Object.keys(data).sort();
+            
+            // Calculate bar width and spacing
+            const barWidth = 0.7 / orderedIndices.length; // Wider bars that fit within the temperature group
+            const groupWidth = barWidth * orderedIndices.length;
+            const startOffset = -groupWidth / 2 + barWidth / 2;
+            
+            // Create a trace for each temperature group
+            for (let t = 0; t < temperatures.length; t++) {
+                const temp = temperatures[t];
+                
+                // Create a trace for each idea within this temperature
+                for (let i = 0; i < orderedIndices.length; i++) {
+                    const ideaIndex = orderedIndices[i];
+                    const idea = IDEAS_LIST[ideaIndex];
+                    const value = data[temp][ideaIndex];
+                    
+                    // Calculate total for percentage if needed
+                    const total = showAsPercentage ? data[temp].reduce((sum, val) => sum + val, 0) : 1;
+                    const displayValue = showAsPercentage ? (value / total * 100) : value;
+                    
+                    // Calculate color based on position in the ordered list
+                    const color = interpolateColor(i, startColor, midColor, endColor);
+                    
+                    // Calculate position within the temperature group
+                    const xPosition = t + startOffset + i * barWidth;
+                    
+                    traces.push({
+                        x: [xPosition], // Position within temperature group
+                        y: [displayValue],
+                        type: 'bar',
+                        name: formatLegendText(idea), // Format the legend text to be multi-line
+                        legendgroup: idea,
+                        showlegend: t === 0, // Only show in legend for the first temperature
+                        marker: {
+                            color: color,
+                            opacity: 0.8,
+                            line: {
+                                color: 'white',
+                                width: 0
+                            }
+                        },
+                        width: barWidth * 0.8, // Slightly narrower than spacing to create gaps
+                        hovertemplate: `${idea}<br>Temperature: ${temp}<br>Count: ${value}` + 
+                                      (showAsPercentage ? `<br>Percentage: ${displayValue.toFixed(1)}%` : '') +
+                                      '<extra></extra>'
+                    });
+                }
+            }
+            
+            // Layout configuration
+            const layout = {
+                title: {
+                    text: 'Ideas Frequency Across Temperatures',
+                    font: { size: 20, color: 'black' }
+                },
+                xaxis: {
+                    tickvals: [0, 1, 2],
+                    ticktext: temperatures,
+                    title: {
+                        text: 'Temperature',
+                        standoff: 5,
+                        font: { color: 'black' }
+                    },
+                    tickfont: { color: 'black' },
+                    range: [-0.5, 2.5] // Add some padding on both sides
+                },
+                yaxis: {
+                    title: {
+                        text: showAsPercentage ? 'Percentage of Ideas (%)' : 'Count',
+                        standoff: 5,
+                        font: { color: 'black' }
+                    },
+                    tickfont: { color: 'black' },
+                    automargin: true
+                },
+                barmode: 'overlay', // Use overlay instead of group for custom positioning
+                bargap: 0,
+                bargroupgap: 0,
+                width: 900,  // Set explicit width for the chart
+                height: 400, // Set explicit height for the chart (currently 600)
+                legend: {
+                    x: 1.0,
+                    y: 1,
+                    xanchor: 'left',
+                    yanchor: 'top',
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: 'rgba(0,0,0,0.1)',
+                    borderwidth: 0,
+                    itemwidth: 40, // Reduced from 150 to make legend items narrower
+                    itemsizing: 'constant',
+                    font: { size: 10, color: 'black' },
+                    width: 300 // Add explicit width for the legend box
+                },
+                margin: {
+                    l: 50,
+                    r: 10,
+                    b: 80,
+                    t: 50,
+                    pad: 2
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: 'black' } // Global font color setting
+            };
+            
+            // Create the plot
+            Plotly.newPlot('chart', traces, layout, {responsive: true});
+        }
+        
+        // Initialize chart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateChart();
+            
+            // Add window resize handler
+            window.addEventListener('resize', function() {
+                updateChart();
+            });
+        });
+    </script>
+</body>
+</html> 
