@@ -49,8 +49,8 @@ for file in files:
 
             # HARD CODED:
             # cap at 50 (experiment is AVG@50)
-            # if injection_string != "I'm confused." and results_per_prompt[question_id][injection_string][1] >= 50:
-            #     continue
+            if results_per_prompt[question_id][injection_string][1] >= 50:
+                continue
 
             # Update counts
             if result["llm_answer"] == result["correct_answer"]:
