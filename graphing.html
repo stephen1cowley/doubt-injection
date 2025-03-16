@@ -180,6 +180,13 @@
             </div>
             
             <div style="margin-bottom: 15px;">
+                <label for="xAxisLabel" style="display: block; margin-bottom: 5px;">X-Axis Label:</label>
+                <input type="text" id="xAxisLabel" placeholder="Temperature" 
+                       style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                       onchange="updatePlot()">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
                 <label for="yAxisLabel" style="display: block; margin-bottom: 5px;">Y-Axis Label:</label>
                 <input type="text" id="yAxisLabel" placeholder="Accuracy" 
                        style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
@@ -511,6 +518,7 @@
                 
                 // Get custom title and y-axis label values
                 let customTitle = document.getElementById('chartTitle').value;
+                let customXAxisLabel = document.getElementById('xAxisLabel').value;
                 let customYAxisLabel = document.getElementById('yAxisLabel').value;
                 
                 let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
@@ -600,7 +608,7 @@
                     } : null,
                     xaxis: {
                         title: {
-                            text: isBarChartMode ? 'Injection String' : 'Temperature',
+                            text: customXAxisLabel || (isBarChartMode ? 'Injection String' : 'Temperature'),
                             standoff: 5
                         },
                         tickangle: isBarChartMode ? 0 : undefined, // Horizontal text for bar chart

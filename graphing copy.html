@@ -205,6 +205,23 @@
                 </label>
             </div>
             
+            <!-- Add bar chart specific options -->
+            <div id="barChartOptions" style="margin-bottom: 15px; display: none;">
+                <h4 style="margin-top: 10px; margin-bottom: 10px; font-size: 14px;">Bar Chart Options:</h4>
+                
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="wideBarMode" onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
+                    <span>Wide Bars</span>
+                </label>
+                
+                <div style="margin-top: 10px;">
+                    <label for="barWidth" style="display: block; margin-bottom: 5px;">Bar Width (0.1-1.0):</label>
+                    <input type="range" id="barWidth" min="0.1" max="1.0" step="0.05" value="0.5"
+                           style="width: 100%;" oninput="updateBarWidthValue(this.value)" onchange="updatePlot()">
+                    <div id="barWidthValue" style="text-align: center; margin-top: 5px;">0.5</div>
+                </div>
+            </div>
+            
             <!-- Add plot size controls -->
             <h3>Plot Size:</h3>
             <div style="margin-bottom: 15px;">
@@ -586,6 +603,42 @@
                             text: isBarChartMode ? 'Injection String' : 'Temperature',
                             standoff: 5
                         },
+                        tickangle: isBarChartMode ? 0 : undefined, // Horizontal text for bar chart
+                        tickfont: isBarChartMode ? { size: 10 } : undefined, // Smaller font for bar chart
+                        tickmode: isBarChartMode ? 'array' : undefined, // Use array tickmode for bar chart
+                        tickvals: isBarChartMode && traces.length > 0 && traces[0].x ? 
+                                 traces[0].x.map((_, i) => i) : undefined, // Position ticks at bar positions
+                        ticktext: isBarChartMode && traces.length > 0 && traces[0].x ? 
+                                 traces[0].x.map(text => {
+                                    const max_line_length = 20
+                                    if (text != '(None)') {
+                                            text = '\"' + text + '\"'
+                                         }
+                                     if (text && text.length > max_line_length) {
+                                         // Split text only at spaces instead of arbitrary character positions
+                                         const words = text.split(' ');
+                                         let lines = [];
+                                         let currentLine = '';
+                                         
+                                         // Build lines with maximum length of ~20 characters
+                                         words.forEach(word => {
+                                             if (currentLine.length + word.length + 1 <= max_line_length) {
+                                                 currentLine += (currentLine ? ' ' : '') + word;
+                                             } else {
+                                                 lines.push(currentLine);
+                                                 currentLine = word;
+                                             }
+                                         });
+                                         
+                                         // Add the last line if it's not empty
+                                         if (currentLine) {
+                                             lines.push(currentLine);
+                                         }
+                                         
+                                         return lines.join('<br>');
+                                     }
+                                     return text;
+                                 }) : undefined
                     },
                     yaxis: {
                         title: {
@@ -972,6 +1025,11 @@
                 errorBar: showErrorBars ? errorBars[i] : null
             })).sort((a, b) => b.accuracy - a.accuracy); // Sort by descending accuracy
             
+            // Get bar width setting
+            const useWideBar = document.getElementById('wideBarMode') && document.getElementById('wideBarMode').checked;
+            const barWidth = document.getElementById('barWidth') ? 
+                             parseFloat(document.getElementById('barWidth').value) : 0.5;
+            
             // Create the bar chart trace
             traces.push({
                 x: sorted.map(p => p.injection),
@@ -982,11 +1040,12 @@
                 }),
                 hovertemplate: 'Injection: %{x}<br>Accuracy: %{y:.3f}<br>%{text}<extra></extra>',
                 marker: {
-                    color: sorted.map((p, i) => {
-                        const normalizedPos = i / (sorted.length - 1 || 1);
-                        return interpolateColor(normalizedPos);
+                    color: sorted.map(p => {
+                        // Make "None" bars blue, all others red
+                        return p.injection === "(None)" ? 'rgba(0, 0, 255, 0.5)' : 'rgba(255, 0, 0, 0.5)';
                     })
-                }
+                },
+                width: useWideBar ? barWidth : undefined
             });
             
             // Add error bars if requested
@@ -1136,7 +1195,7 @@
             toggleContainer.innerHTML = `
                 <div style="margin-bottom: 8px; font-weight: 600;">Chart Type:</div>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="barChartToggle" onclick="updatePlot()">
+                    <input type="checkbox" id="barChartToggle" onclick="toggleBarChartMode()">
                     <span class="slider"></span>
                 </label>
                 <span class="toggle-label" id="barChartToggleLabel">Line Chart</span>
@@ -1148,14 +1207,28 @@
             
             // Add event listener for bar chart toggle
             document.getElementById('barChartToggle').addEventListener('change', function() {
+                toggleBarChartMode();
+            });
+            
+            // Function to update bar width value display
+            window.updateBarWidthValue = function(val) {
+                document.getElementById('barWidthValue').textContent = val;
+            };
+            
+            // Function to toggle bar chart mode
+            window.toggleBarChartMode = function() {
                 const toggleLabel = document.getElementById('barChartToggleLabel');
-                if (this.checked) {
+                const barChartOptions = document.getElementById('barChartOptions');
+                
+                if (document.getElementById('barChartToggle').checked) {
                     toggleLabel.textContent = "Bar Chart";
+                    barChartOptions.style.display = 'block';
                 } else {
                     toggleLabel.textContent = "Line Chart";
+                    barChartOptions.style.display = 'none';
                 }
                 updatePlot();
-            });
+            };
             
             // Load sample injection data function
             window.loadSampleInjectionData = function() {
@@ -1195,6 +1268,7 @@
                 document.getElementById('barChartToggle').checked = true;
                 document.getElementById('barChartToggleLabel').textContent = "Bar Chart";
                 document.getElementById('barChartToggle').parentElement.style.display = 'block';
+                document.getElementById('barChartOptions').style.display = 'block';
                 
                 // Create question checkboxes
                 const questionList = document.getElementById('questionList');
