@@ -44,11 +44,14 @@ injection_strings=(
 # sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
 # sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, let me think again.\""
 
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But"
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But"
-sbatch simplebench_eval_20mins.wilkes3 1 25 1.0 "\"But wait, let me think again.\""
-sbatch simplebench_eval_20mins.wilkes3 8 25 1.0 "\"But wait, let me think again.\""
-sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
-sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, let me think again.\""
+# sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But"
+# sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "But"
+# sbatch simplebench_eval_20mins.wilkes3 1 25 1.0 "\"But wait, let me think again.\""
+# sbatch simplebench_eval_20mins.wilkes3 8 25 1.0 "\"But wait, let me think again.\""
+# sbatch simplebench_eval_20mins.wilkes3 9 25 1.0 "\"But wait, let me think again.\""
+# sbatch simplebench_eval_20mins.wilkes3 10 25 1.0 "\"But wait, let me think again.\""
 
 ##
+sbatch simplebench_eval_20mins.wilkes3 1 40 1.0 "But"
+sbatch simplebench_eval_20mins.wilkes3 1 40 1.0 "But"
+sbatch simplebench_eval_20mins.wilkes3 8 50 1.0 "But"
