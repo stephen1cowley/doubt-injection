@@ -6,7 +6,7 @@ injection_strings=(
     "I'm confused."
 )
 
-for i in 10; do
+for i in 18 32; do
     for _ in {1..50}; do
         for j in 1 2 3 8 9 10; do
             sbatch simplebench_eval_20mins.wilkes3 $j $i 1.0 "But"
