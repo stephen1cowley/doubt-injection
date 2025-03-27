@@ -7,20 +7,26 @@
 ### 1.2.1 Large Language Models
 
 ### 1.2.2 Hallucination
+- Popular definitions
+- Expanding the definition
 
 ### 1.2.3 Effect of Prompt
+- "The effects of this will be discussed later in section X"
 
 ### 1.2.4 Effect of Temperature
+- "THis will be explored later"
 
 ### 1.2.5 Retrival-augmented Generation
 
 ### 1.2.6 Contrastive Decoding
+- "Sections X will attempt to verify the results seen in the literature"
 
 ### 1.2.7 Chain-of-Thought
 
+
 ## 1.3 Objectives
 
-# 2 Additive Context-aware Decoding to Address Contrastive Decoding Issues
+# 2 Additive Context-aware Decoding to Address Issues with Contrastive Decoding
 
 ## 2.1 Theory
 
@@ -58,7 +64,6 @@
 
 ### 3.2.3 Evaluating Error (Beta distribution)
 - Provided equal weighting of questions
-- Let $a_{|}$ represent the accuracy
 
 ### 3.2.4 Models
 - Reference the DeepSeek paper with small background on where the model has come from.
@@ -70,14 +75,15 @@
 
 ### 3.3.1 Motivating Results (the River Problem)
 
-### 3.3.2 Substring Extraction
+### 3.3.2 Exploration of Idea Space
 
-### 3.3.3 Exploration of Idea Space
+### 3.3.3 Effect of Injection String
 
-### 3.3.4 Effect of Temperature
+### 3.3.4 Effect of Injection Probability
 
-### 3.3.5 Effect of Injection String
-- We are therefore 69% certain that the injecting the string "I'm confused" after a new paragraph with 25% probability has a higher accuracy on this dataset than no injection at all.
+### 3.3.5 Effect of Temperature
+
+### 3.3.6 Performance on Alternative Datasets
 
 # 4 Conclusions
 
