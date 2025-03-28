@@ -1,3 +1,16 @@
+"""
+This script is used to evaluate the performance of a given LLM on the AIME dataset.
+
+A major difference between this script and simplebench_eval is that this script uses a chat template
+to generate the input ids. This ensures the correct formatting of the input is used.
+
+Also we prompt it to put the answer into \\boxed{} tags.
+
+Usage:
+python aime_eval.py --doubt_injection 0 --llm_name "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+    --prompt_name "aime_deepseek.txt" --temperature_set "0.6" --injection_string "But"
+"""
+
 from typing import List, Dict
 import json
 import torch
@@ -87,12 +100,15 @@ def main():
         # Evaluate
         question: str = questions[q_id]["problem"]
         answer: str = questions[q_id]["answer"]
-        llm_prompt: str = prompt.format(question=question)
-        print(llm_prompt)
-
+        chat = [
+            {"role": "user", "content": prompt + question}
+        ]
         time_0 = time.time()
-        input_ids: torch.Tensor = tokenizer.encode(llm_prompt, return_tensors="pt").to(model.device)
+        tokenized_input = tokenizer.apply_chat_template(chat, add_generation_prompt=True)
+        input_ids = torch.tensor([tokenized_input]).to(model.device)
+        print(tokenizer.decode(input_ids[0]))
         input_length: int = len(input_ids[0])
+        print(f"Input length: {input_length}")
         # Initialize cache to be empty each response -- save memory
         past_key_values = DynamicCache()
 
@@ -164,9 +180,9 @@ def main():
         llm_response: str = tokenizer.decode(
             input_ids[0],
             skip_special_tokens=True
-        )[len(llm_prompt):]
+        )
 
-        llm_answer: str = llm_response.split('<answer>')[-1].split('</answer>')[0].strip()
+        llm_answer: str = llm_response.split('\\boxed{')[-1].split('}')[0].strip()
 
         print("\n")
         # if len(llm_answer) != 1:
