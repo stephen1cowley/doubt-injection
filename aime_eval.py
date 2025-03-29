@@ -37,6 +37,9 @@ def parse_args():
     parser.add_argument('--injection_string', type=str,
                         default="But",
                         help='Injection string')
+    parser.add_argument('--spec_question', type=int,
+                        default=None,
+                        help='Specific question to evaluate')
     return parser.parse_args()
 
 
@@ -49,6 +52,7 @@ def main():
     prompt_name: str = args.prompt_name
     doubt_injection_prob: float = args.doubt_injection / 100
     injection_string: str = args.injection_string
+    spec_question: int = args.spec_question
     print(f"Injection string: {injection_string}")
 
     # Load questions
@@ -97,6 +101,8 @@ def main():
         doubtful_prefix: List[str] = [".\n\n", " \n\n", "\n\n",  ". \n\n"]
 
     for q_id in range(num_questions):
+        if spec_question:
+            q_id = spec_question - 1
         # Evaluate
         question: str = questions[q_id]["problem"]
         answer: str = questions[q_id]["answer"]
