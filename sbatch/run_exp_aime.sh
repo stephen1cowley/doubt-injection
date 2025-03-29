@@ -1,1 +1,1 @@
-sbatch aime_eval_1hr.wilkes3 0 "But"
+sbatch aime_eval_5hr.wilkes3 0 "But"
