@@ -39,6 +39,7 @@ for file in files:
             question_id = str(result["question_id"])
             temperature = str(result["temperature"])
             llm_name = str(result["llm_name"])
+            print(llm_name)
             doubt_injection_prob = str(result["doubt_injection_prob"])
 
             if llm_name != "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B":
