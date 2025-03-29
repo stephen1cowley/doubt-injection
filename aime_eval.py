@@ -113,7 +113,8 @@ def main():
         past_key_values = DynamicCache()
 
         # Generate one token at a time
-        first_token = True
+        first_token: bool = True
+        in_cot: bool = True
         while True:
             # Generate next token using forward pass
             with torch.no_grad():
@@ -156,11 +157,15 @@ def main():
             # Print the new token
             curr_token: str = tokenizer.decode(next_token[0], skip_special_tokens=False)
 
+            if args.doubt_injection:
+                if "</think>" in curr_token:
+                    in_cot = False
+
             # Break if we hit the end token or max length
             if next_token[0] == tokenizer.eos_token_id or input_ids.shape[1] >= max_length:
                 break
 
-            if args.doubt_injection and curr_token in doubtful_prefix:
+            if args.doubt_injection and curr_token in doubtful_prefix and in_cot:
                 # Inject doubt into the response on '.\n\n'
                 if torch.bernoulli(torch.tensor([doubt_injection_prob])).item() == 1:
                     input_ids = torch.cat(
