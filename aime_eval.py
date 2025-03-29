@@ -44,7 +44,7 @@ def main():
     args = parse_args()
     llm_name: str = args.llm_name
     temperature: float = float(args.temperature_set)
-    max_length: int = 32768
+    max_length: int = 10000
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
     doubt_injection_prob: float = args.doubt_injection / 100
