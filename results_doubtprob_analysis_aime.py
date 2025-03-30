@@ -40,9 +40,10 @@ for file in files:
             temperature = str(result["temperature"])
             llm_name = str(result["llm_name"])
             print(llm_name)
+            print(result["response_length"], int(result["llm_answer"]) == int(result["correct_answer"]))
             doubt_injection_prob = str(result["doubt_injection_prob"])
 
-            if llm_name == "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B":
+            if llm_name != "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B":
                 continue
 
             # Initialize nested dictionaries for results_per_question
@@ -59,7 +60,7 @@ for file in files:
                 continue
 
             # Update counts
-            if result["llm_answer"] == result["correct_answer"]:
+            if int(result["llm_answer"]) == int(result["correct_answer"]):
                 results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
