@@ -40,7 +40,9 @@ for file in files:
             temperature = str(result["temperature"])
             llm_name = str(result["llm_name"])
             print(llm_name)
-            print(result["response_length"], int(result["llm_answer"]) == int(result["correct_answer"]))
+            llm_answer = int(result["llm_answer"]) if result["llm_answer"] != "" else None
+            correct_answer = int(result["correct_answer"])
+            print(result["response_length"], llm_answer == correct_answer)
             doubt_injection_prob = str(result["doubt_injection_prob"])
 
             if llm_name != "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B":
@@ -60,7 +62,7 @@ for file in files:
                 continue
 
             # Update counts
-            if int(result["llm_answer"]) == int(result["correct_answer"]):
+            if llm_answer == correct_answer:
                 results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
