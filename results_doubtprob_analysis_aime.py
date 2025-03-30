@@ -48,7 +48,7 @@ for file in files:
             print(result["response_length"], llm_answer == correct_answer)
             doubt_injection_prob = str(result["doubt_injection_prob"])
 
-            if llm_name != "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B":
+            if llm_name == "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B":
                 continue
 
             # Initialize nested dictionaries for results_per_question
