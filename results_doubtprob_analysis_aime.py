@@ -40,7 +40,10 @@ for file in files:
             temperature = str(result["temperature"])
             llm_name = str(result["llm_name"])
             print(llm_name)
-            llm_answer = int(result["llm_answer"]) if result["llm_answer"] != "" else None
+            try:
+                llm_answer = int(result["llm_answer"])
+            except ValueError:
+                llm_answer = None
             correct_answer = int(result["correct_answer"])
             print(result["response_length"], llm_answer == correct_answer)
             doubt_injection_prob = str(result["doubt_injection_prob"])
