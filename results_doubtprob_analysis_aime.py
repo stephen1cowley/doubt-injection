@@ -30,7 +30,7 @@ for file in files:
         results: List[dict] = json.load(f)
 
         for result in results:
-            # Handle case where injection_string key doesn't exist  
+            # Handle case where injection_string key doesn't exist
             if "injection_string" not in result:
                 continue
             injection_string = str(result["injection_string"])
