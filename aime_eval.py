@@ -234,6 +234,9 @@ def main():
         print(f"Results saved to {output_filename}")
         results = []
 
+        if spec_question:
+            break
+
 
 if __name__ == "__main__":
     main()
