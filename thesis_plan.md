@@ -29,8 +29,10 @@
 # 2 Additive Context-aware Decoding to Address Issues with Contrastive Decoding
 
 ## 2.1 Theory
+- APC
 
 ## 2.2 Experimental Setup
+
 
 ### 2.2.1 Datasets
 
@@ -38,6 +40,7 @@
 - Recall, EM
 
 ### 2.2.3 Models
+- Temperature?
 
 ## 2.3 Results and Discussion
 

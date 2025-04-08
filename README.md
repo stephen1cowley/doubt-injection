@@ -85,9 +85,7 @@ Want to get nice, polished results, that tell a story.
 - To change char width `if (text && text.length > 20) {`
 
 ## TODO
-- Need *some* sort of literature review on CoT/effect of temperature? Would be nice on background motivating that sort of stuff.
-- THink about what I've done this term. What will create a high-quality, coherent, backed, reasoned, thoughtful, results-driven project? (Final Project report).
-- Create a holiday list of things I need to run (GSM8K will be required to show how performance degrades across a different task.) <--- By Tuesday
+- Final gap to first section (can be relatively easily filled), just additive CAD DoLa with my own prompt, on NQ Llama-2-7B, with 'previous best' line. Will really answer for sure whether Add-CAD is promising/good. Keep the 'addressing inconsistencies' (and hence any use of the recall metric), to the end of this section. 
 
 ### Tomorrow:
 - From river problem, do simple string analysis to find mentions of substrings. Make use of all these responses to analyse! <---- Not difficult!!!
