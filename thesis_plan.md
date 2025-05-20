@@ -5,6 +5,7 @@
 ## 1.2 Technical Background
 
 ### 1.2.1 Large Language Models
+- Sufficient abstraction for this paper is...
 
 ### 1.2.2 Hallucination
 - Popular definitions
