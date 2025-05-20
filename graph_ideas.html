@@ -105,6 +105,10 @@
             font-size: 14px;
             font-weight: 500;
         }
+        .legend {
+            padding: 0;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -227,7 +231,7 @@
             
             // Define color gradient (red -> magenta -> blue)
             const startColor = [255, 0, 0];    // Red
-            const midColor = [255, 0, 255];    // Magenta
+            const midColor = [150, 150, 150];    // Magenta
             const endColor = [0, 0, 255];      // Blue
             
             // Prepare data for plotting
@@ -287,7 +291,7 @@
                         showlegend: t === 0, // Only show in legend for the first temperature
                         marker: {
                             color: color,
-                            opacity: 0.8,
+                            opacity: 0.95,
                             line: {
                                 color: 'white',
                                 width: 0
@@ -320,7 +324,7 @@
                 },
                 yaxis: {
                     title: {
-                        text: showAsPercentage ? 'Percentage of Ideas (%)' : 'Count',
+                        text: showAsPercentage ? 'Percentage of Ideas (%)' : 'Proportion of Ideas',
                         standoff: 5,
                         font: { color: 'black' }
                     },
@@ -328,22 +332,26 @@
                     automargin: true
                 },
                 barmode: 'overlay', // Use overlay instead of group for custom positioning
-                bargap: 0,
-                bargroupgap: 0,
-                width: 900,  // Set explicit width for the chart
-                height: 400, // Set explicit height for the chart (currently 600)
+                bargap: 0.1, // Reduce the gap between bars
+                bargroupgap: 0.1, // Reduce the gap between bar groups
+                width: 700,  // Set explicit width for the chart
+                height: 355, // Set explicit height for the chart (currently 600)
                 legend: {
                     x: 1.0,
-                    y: 1,
+                    y: 0.5, // Move the legend even closer to the center vertically
                     xanchor: 'left',
-                    yanchor: 'top',
+                    yanchor: 'middle',
                     bgcolor: 'rgba(255,255,255,0.8)',
                     bordercolor: 'rgba(0,0,0,0.1)',
                     borderwidth: 0,
-                    itemwidth: 40, // Reduced from 150 to make legend items narrower
+                    itemwidth: 1, // Further reduce the width of each legend item
                     itemsizing: 'constant',
-                    font: { size: 10, color: 'black' },
-                    width: 300 // Add explicit width for the legend box
+                    font: { size: 13, color: 'black' },
+                    width: 220, // Further reduce the overall width of the legend box
+                    height: 200,
+                    traceorder: 'normal', // Ensure normal order
+                    itemclick: 'toggleothers', // Adjust item click behavior
+                    itemdoubleclick: 'toggle' // Adjust item double-click behavior
                 },
                 margin: {
                     l: 50,
