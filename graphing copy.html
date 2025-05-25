@@ -207,7 +207,7 @@
                 </label>
                 
                 <label style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <input type="checkbox" id="showErrorBars" onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
+                    <input type="checkbox" id="showErrorBars" checked onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
                     <span>Show Error Bars</span>
                 </label>
 
@@ -634,54 +634,34 @@
                     } : null,
                     xaxis: {
                         title: {
-                            text: customXAxisLabel || (isBarChartMode ? 'Injection String' : 'Temperature'),
+                            text: customXAxisLabel || (isBarChartMode ? (isTokenMode ? 'Temperature' : 'Accuracy') : 'Temperature'),
                             standoff: 5
                         },
                         tickangle: isBarChartMode ? 0 : undefined, // Horizontal text for bar chart
-                        tickfont: isBarChartMode ? { size: 10 } : undefined, // Smaller font for bar chart
-                        tickmode: isBarChartMode ? 'array' : undefined, // Use array tickmode for bar chart
-                        tickvals: isBarChartMode && traces.length > 0 && traces[0].x ? 
-                                 traces[0].x.map((_, i) => i) : undefined, // Position ticks at bar positions
-                        ticktext: isBarChartMode && traces.length > 0 && traces[0].x ? 
-                                 traces[0].x.map(text => {
-                                    const max_line_length = 20
-                                    if (text != '(None)') {
-                                            text = '\"' + text + '\"'
-                                         }
-                                     if (text && text.length > max_line_length) {
-                                         // Split text only at spaces instead of arbitrary character positions
-                                         const words = text.split(' ');
-                                         let lines = [];
-                                         let currentLine = '';
-                                         
-                                         // Build lines with maximum length of ~20 characters
-                                         words.forEach(word => {
-                                             if (currentLine.length + word.length + 1 <= max_line_length) {
-                                                 currentLine += (currentLine ? ' ' : '') + word;
-                                             } else {
-                                                 lines.push(currentLine);
-                                                 currentLine = word;
-                                             }
-                                         });
-                                         
-                                         // Add the last line if it's not empty
-                                         if (currentLine) {
-                                             lines.push(currentLine);
-                                         }
-                                         
-                                         return lines.join('<br>');
-                                     }
-                                     return text;
-                                 }) : undefined,
+                        tickfont: isBarChartMode ? { size: 12 } : undefined, // Smaller font for bar chart
+                        tickmode: isBarChartMode && !isTokenMode ? undefined : undefined, // Use array tickmode for bar chart
+                        tickvals: isBarChartMode && !isTokenMode && traces.length > 0 && traces[0].x ? 
+                                 undefined : undefined, // Position ticks at bar positions
+                        ticktext: isBarChartMode && !isTokenMode && traces.length > 0 && traces[0].x ? 
+                                 undefined : undefined,
                         // Add forced whole number ticks if enabled
-                        dtick: document.getElementById('forceWholeTicks').checked ? 1 : undefined
+                        dtick: document.getElementById('forceWholeTicks').checked ? 1 : undefined,
+                        // For horizontal bar charts with accuracy data, set the range from 0 to max value with padding
+                        range: isBarChartMode && !isTokenMode ? [0, isTokenMode ? null : Math.min(1, maxY * 1.1)] : undefined
                     },
                     yaxis: {
                         title: {
-                            text: customYAxisLabel || (isTokenMode ? 'Token Count' : 'Accuracy'),
+                            text: customYAxisLabel || (isTokenMode ? 'Token Count' : (isBarChartMode ? 'Injection String' : 'Accuracy')),
                             standoff: 5
                         },
-                        range: isTokenMode ? null : [0, yAxisMax]
+                        // Only set range for vertical (non-bar) accuracy charts
+                        range: (!isBarChartMode && !isTokenMode) ? [0, yAxisMax] : undefined,
+                        // For horizontal bar charts, display in the order provided (already sorted)
+                        categoryorder: isBarChartMode && !isTokenMode ? 'trace' : undefined,
+                        // Reverse the order for horizontal bar charts to have highest at top
+                        autorange: isBarChartMode && !isTokenMode ? 'reversed' : undefined,
+                        // For horizontal bar charts, adjust the text formatting
+                        tickfont: isBarChartMode && !isTokenMode ? { size: 12 } : undefined
                     },
                     hovermode: 'closest',
                     height: parseInt(document.getElementById('plotHeight').value) || 600,
@@ -692,12 +672,13 @@
                     },
                     legend: showLegend ? {
                         title: {
-                            text: isTokenMode ? 'Doubt Injection Probability' : 
+                            text: isTokenMode ? 'Doubt<br>Injection<br>Probability' : 
                                    (document.getElementById('barChartToggle') && document.getElementById('barChartToggle').checked ? 
-                                    'Injection String' : 'Doubt Injection Probability'),
+                                    'Injection String' : 'Doubt<br>Injection<br>Probability'),
                             font: { size: 13 }
                         }
-                    } : {}
+                    } : {},
+                    margin: isBarChartMode && !isTokenMode ? { l: 250 } : undefined // Add extra left margin for horizontal bar labels
                 };
                 
                 console.log("Plotting with layout:", layout);
@@ -1093,33 +1074,68 @@
                 }
             }
             
-            // Sort by accuracy (optional)
+            // Sort by accuracy (in descending order for horizontal bars with highest at top)
             let sorted = injections.map((inj, i) => ({
                 injection: inj,
                 accuracy: accuracies[i],
                 correct: correctCounts[i],
                 total: totalCounts[i],
                 errorBar: showErrorBars ? errorBars[i] : null
-            })).sort((a, b) => b.accuracy - a.accuracy); // Sort by descending accuracy
+            })).sort((a, b) => b.accuracy - a.accuracy); // Sort by descending accuracy so highest appears at top
+            
+            // Format injection strings for display
+            let formattedInjections = sorted.map(p => {
+                let text = p.injection;
+                if (text !== '(None)') {
+                    text = '"' + text + '"';
+                }
+                
+                const max_line_length = 30; // Increased from 25 to allow more characters per line
+                if (text && text.length > max_line_length) {
+                    // Split text only at spaces instead of arbitrary character positions
+                    const words = text.split(' ');
+                    let lines = [];
+                    let currentLine = '';
+                    
+                    // Build lines with maximum length of ~35 characters
+                    words.forEach(word => {
+                        if (currentLine.length + word.length + 1 <= max_line_length) {
+                            currentLine += (currentLine ? ' ' : '') + word;
+                        } else {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        }
+                    });
+                    
+                    // Add the last line if it's not empty
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
+                    
+                    return lines.join('<br>');
+                }
+                return text;
+            });
             
             // Get bar width setting
             const useWideBar = document.getElementById('wideBarMode') && document.getElementById('wideBarMode').checked;
             const barWidth = document.getElementById('barWidth') ? 
                              parseFloat(document.getElementById('barWidth').value) : 0.5;
             
-            // Create the bar chart trace
+            // Create the horizontal bar chart trace
             traces.push({
-                x: sorted.map(p => p.injection),
-                y: sorted.map(p => p.accuracy),
+                y: formattedInjections,
+                x: sorted.map(p => p.accuracy),
                 type: 'bar',
+                orientation: 'h',
                 text: sorted.map(p => {
-                    return `Correct: ${p.correct}<br>Total: ${p.total}<br>Accuracy: ${(p.accuracy * 100).toFixed(1)}%`;
+                    return `Injection: "${p.injection}"<br>Correct: ${p.correct}<br>Total: ${p.total}<br>Accuracy: ${(p.accuracy * 100).toFixed(1)}%`;
                 }),
-                hovertemplate: 'Injection: %{x}<br>Accuracy: %{y:.3f}<br>%{text}<extra></extra>',
+                hovertemplate: 'Accuracy: %{x:.3f}<br>%{text}<extra></extra>',
                 marker: {
                     color: sorted.map(p => {
-                        // Make "None" bars blue, all others red
-                        return p.injection === "(None)" ? 'rgba(0, 0, 255, 0.5)' : 'rgba(255, 0, 0, 0.5)';
+                        // Make "None" bars gray, all others red
+                        return p.injection === "(None)" ? 'rgba(128, 128, 128, 0.7)' : 'rgba(255, 0, 0, 0.5)';
                     })
                 },
                 width: useWideBar ? barWidth : undefined
@@ -1127,20 +1143,22 @@
             
             // Add error bars if requested
             if (showErrorBars) {
+                console.log("Adding error bars to horizontal bar chart");
+                
                 traces.push({
-                    x: sorted.map(p => p.injection),
-                    y: sorted.map(p => p.accuracy),
+                    y: formattedInjections,
+                    x: sorted.map(p => p.accuracy),
                     type: 'scatter',
                     mode: 'markers',
                     marker: { color: 'rgba(0,0,0,0)' },
-                    error_y: {
+                    error_x: {
                         type: 'data',
-                        array: sorted.map(p => p.errorBar[1] - p.accuracy),
-                        arrayminus: sorted.map(p => p.accuracy - p.errorBar[0]),
+                        array: sorted.map(p => p.errorBar ? p.errorBar[1] - p.accuracy : 0),
+                        arrayminus: sorted.map(p => p.errorBar ? p.accuracy - p.errorBar[0] : 0),
                         visible: true,
                         color: 'black',
-                        thickness: 1,
-                        width: 3
+                        thickness: 1.5,
+                        width: 6
                     },
                     showlegend: false,
                     hoverinfo: 'skip'

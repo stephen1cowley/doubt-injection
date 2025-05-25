@@ -58,7 +58,19 @@ for file in files:
                 continue
 
             # Update counts
-            if result["llm_answer"] == result["correct_answer"]:
+            # if result["llm_answer"] == result["correct_answer"]:
+            #     results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
+            #     )
+            # else:
+            #     results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][0],
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
+            #     )
+            
+            # Determine if length of response is greater than 10000
+            if result["response_length"] > 10000:
                 results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
@@ -71,5 +83,5 @@ for file in files:
 
 # Save results_summary to json
 print(results_per_doubtprob)
-with open("results_per_doubtprob.json", "w") as f:
+with open("results_per_doubtprob_length_10000.json", "w") as f:
     json.dump(results_per_doubtprob, f, indent=4)
