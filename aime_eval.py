@@ -170,26 +170,27 @@ def main():
 
             # Break if we hit the end token or max length
             if next_token[0] == tokenizer.eos_token_id or input_ids.shape[1] >= max_length:
+                print(f"###Reached max length: {input_ids.shape[1]}###")
                 break
 
-            if num_tokens >= 9000 and curr_token in doubtful_prefix and in_cot:
-                # Inject the end of thought token
-                end_think_token = tokenizer.encode("</think>", return_tensors="pt",
-                                                   add_special_tokens=False).to(model.device)
-                input_ids = torch.cat(
-                    [input_ids, next_token, end_think_token], dim=-1)
-                print(curr_token + injection_string, end='', flush=True)
-                in_cot = False
-
-            if args.doubt_injection and curr_token in doubtful_prefix and in_cot:
-                # Inject doubt into the response on '.\n\n'
-                if torch.bernoulli(torch.tensor([doubt_injection_prob])).item() == 1:
+            if curr_token in doubtful_prefix and in_cot:
+                if input_ids.shape[1] >= 9000:
+                    # Inject the end of thought token
+                    end_think_token = tokenizer.encode("</think>", return_tensors="pt",
+                                                       add_special_tokens=False).to(model.device)
                     input_ids = torch.cat(
-                        [input_ids, next_token, doubtful_statement_ids], dim=-1)
-                    print(curr_token + injection_string, end='', flush=True)
-                else:
-                    input_ids = torch.cat([input_ids, next_token], dim=-1)
-                    print(curr_token, end='', flush=True)
+                        [input_ids, next_token, end_think_token], dim=-1)
+                    print(curr_token + "</think>" + "###forced_stop###", end='', flush=True)
+                    in_cot = False
+                elif args.doubt_injection:
+                    # Inject doubt into the response on '.\n\n'
+                    if torch.bernoulli(torch.tensor([doubt_injection_prob])).item() == 1:
+                        input_ids = torch.cat(
+                            [input_ids, next_token, doubtful_statement_ids], dim=-1)
+                        print(curr_token + injection_string + "###injection###", end='', flush=True)
+                    else:
+                        input_ids = torch.cat([input_ids, next_token], dim=-1)
+                        print(curr_token, end='', flush=True)
             else:
                 # Update input_ids for next iteration
                 input_ids = torch.cat([input_ids, next_token], dim=-1)
