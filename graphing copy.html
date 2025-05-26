@@ -157,6 +157,53 @@
                 <span class="toggle-label" id="toggleLabel">Accuracy Data</span>
             </div>
             
+            <!-- Add Beta Distribution Mode toggle -->
+            <div class="toggle-container">
+                <div style="margin-bottom: 8px; font-weight: 600;">Beta Distribution Mode:</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="betaModeToggle" onclick="toggleBetaMode()">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="betaModeLabel">Off</span>
+            </div>
+            
+            <!-- Beta Distribution Controls -->
+            <div id="betaControls" style="display: none; margin-bottom: 15px;">
+                <h3>Beta Distribution Parameters:</h3>
+                
+                <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <h4 style="margin: 0 0 10px 0; color: #d32f2f;">Distribution 1 (Red):</h4>
+                    <div style="margin-bottom: 10px;">
+                        <label for="beta1Alpha" style="display: block; margin-bottom: 5px;">Alpha (α):</label>
+                        <input type="number" id="beta1Alpha" min="0.1" step="0.1" value="2" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                               onchange="updatePlot()">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label for="beta1Beta" style="display: block; margin-bottom: 5px;">Beta (β):</label>
+                        <input type="number" id="beta1Beta" min="0.1" step="0.1" value="5" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                               onchange="updatePlot()">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">Distribution 2 (Blue):</h4>
+                    <div style="margin-bottom: 10px;">
+                        <label for="beta2Alpha" style="display: block; margin-bottom: 5px;">Alpha (α):</label>
+                        <input type="number" id="beta2Alpha" min="0.1" step="0.1" value="5" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                               onchange="updatePlot()">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label for="beta2Beta" style="display: block; margin-bottom: 5px;">Beta (β):</label>
+                        <input type="number" id="beta2Beta" min="0.1" step="0.1" value="2" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                               onchange="updatePlot()">
+                    </div>
+                </div>
+            </div>
+            
             <div id="questionSection">
                 <h3>Select Questions:</h3>
                 <button onclick="selectAll('questions')">Select All</button>
@@ -304,6 +351,23 @@
             
             updatePlot();
         });
+        
+        // Beta mode toggle function
+        function toggleBetaMode() {
+            const betaModeToggle = document.getElementById('betaModeToggle');
+            const betaModeLabel = document.getElementById('betaModeLabel');
+            const betaControls = document.getElementById('betaControls');
+            
+            if (betaModeToggle.checked) {
+                betaModeLabel.textContent = "On";
+                betaControls.style.display = 'block';
+            } else {
+                betaModeLabel.textContent = "Off";
+                betaControls.style.display = 'none';
+            }
+            
+            updatePlot();
+        }
         
         // Modify file input handling to use the HTML element
         const fileInput = document.querySelector('.file-input');
@@ -528,12 +592,14 @@
 
         function updatePlot() {
             try {
+                const isBetaMode = document.getElementById('betaModeToggle').checked;
                 const isTokenMode = document.getElementById('dataStructureToggle').checked;
                 const isBarChartMode = document.getElementById('barChartToggle') && 
                                       document.getElementById('barChartToggle').checked;
                 const showErrorBars = document.getElementById('showErrorBars').checked;
                 
                 console.log("updatePlot called:", {
+                    isBetaMode,
                     isTokenMode,
                     isBarChartMode,
                     showErrorBars,
@@ -547,22 +613,24 @@
                 let customXAxisLabel = document.getElementById('xAxisLabel').value;
                 let customYAxisLabel = document.getElementById('yAxisLabel').value;
                 
-                let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
-                    .map(cb => cb.value);
-                
-                console.log("Selected probabilities/injections:", selectedProbs);
-                
                 let traces = [];
                 
                 // Check which mode to use
-                if (isTokenMode && tokenData) {
+                if (isBetaMode) {
+                    console.log("Using beta distribution mode");
+                    plotBetaDistributions(traces);
+                } else if (isTokenMode && tokenData) {
                     console.log("Using token data mode");
                     // Token data plotting
+                    let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
                     plotTokenData(traces, selectedProbs, showErrorBars);
                 } else if (!isTokenMode && isBarChartMode && injectionData) {
                     console.log("Using injection bar chart mode");
                     // Injection data bar chart plotting
                     let selectedQuestions = Array.from(document.querySelectorAll('#questionList input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
+                    let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
                         .map(cb => cb.value);
                     plotInjectionBarChart(traces, selectedQuestions, selectedProbs, showErrorBars);
                 } else if (!isTokenMode && accuracyData) {
@@ -570,11 +638,13 @@
                     // Accuracy data plotting
                     let selectedQuestions = Array.from(document.querySelectorAll('#questionList input[type="checkbox"]:checked'))
                         .map(cb => cb.value);
+                    let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
                     plotAccuracyData(traces, selectedQuestions, selectedProbs, showErrorBars);
                 } else {
                     console.log("No appropriate data for selected mode");
                     // No appropriate data loaded for the selected mode
-                    Plotly.newPlot('plot', [], {title: `No ${isTokenMode ? 'token' : (isBarChartMode ? 'injection' : 'accuracy')} data loaded`});
+                    Plotly.newPlot('plot', [], {title: `No ${isBetaMode ? 'beta distribution' : (isTokenMode ? 'token' : (isBarChartMode ? 'injection' : 'accuracy'))} data loaded`});
                     return;
                 }
                 
@@ -621,20 +691,22 @@
                 
                 let layout = {
                     title: showTitle ? {
-                        text: customTitle || (isTokenMode 
-                            ? (showErrorBars 
-                                ? 'Token Count vs Temperature<br><span style="font-size:12px">Shaded areas represent interquartile range</span>'
-                                : 'Token Count vs Temperature')
-                            : (isBarChartMode
-                                ? 'Accuracy by Injection String<br><span style="font-size:12px">Comparing different injection strings</span>'
-                                : (showErrorBars 
-                                    ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
-                                    : 'Accuracy vs Temperature'))),
+                        text: customTitle || (isBetaMode
+                            ? 'Beta Distribution Comparison<br><span style="font-size:12px">Probability Density Function (PDF)</span>'
+                            : (isTokenMode 
+                                ? (showErrorBars 
+                                    ? 'Token Count vs Temperature<br><span style="font-size:12px">Shaded areas represent interquartile range</span>'
+                                    : 'Token Count vs Temperature')
+                                : (isBarChartMode
+                                    ? 'Accuracy by Injection String<br><span style="font-size:12px">Comparing different injection strings</span>'
+                                    : (showErrorBars 
+                                        ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
+                                        : 'Accuracy vs Temperature')))),
                         font: { size: 18 }
                     } : null,
                     xaxis: {
                         title: {
-                            text: customXAxisLabel || (isBarChartMode ? (isTokenMode ? 'Temperature' : 'Accuracy') : 'Temperature'),
+                            text: customXAxisLabel || (isBetaMode ? 'x' : (isBarChartMode ? (isTokenMode ? 'Temperature' : 'Accuracy') : 'Temperature')),
                             standoff: 5
                         },
                         tickangle: isBarChartMode ? 0 : undefined, // Horizontal text for bar chart
@@ -644,18 +716,19 @@
                                  undefined : undefined, // Position ticks at bar positions
                         ticktext: isBarChartMode && !isTokenMode && traces.length > 0 && traces[0].x ? 
                                  undefined : undefined,
-                        // Add forced whole number ticks if enabled
-                        dtick: document.getElementById('forceWholeTicks').checked ? 1 : undefined,
+                        // Add forced whole number ticks if enabled (not for beta mode)
+                        dtick: !isBetaMode && document.getElementById('forceWholeTicks').checked ? 1 : undefined,
                         // For horizontal bar charts with accuracy data, set the range from 0 to max value with padding
-                        range: isBarChartMode && !isTokenMode ? [0, isTokenMode ? null : Math.min(1, maxY * 1.1)] : undefined
+                        range: isBarChartMode && !isTokenMode ? [0, isTokenMode ? null : Math.min(1, maxY * 1.1)] : 
+                               (isBetaMode ? [0, 1] : undefined)
                     },
                     yaxis: {
                         title: {
-                            text: customYAxisLabel || (isTokenMode ? 'Token Count' : (isBarChartMode ? 'Injection String' : 'Accuracy')),
+                            text: customYAxisLabel || (isBetaMode ? 'Probability Density' : (isTokenMode ? 'Token Count' : (isBarChartMode ? 'Injection String' : 'Accuracy'))),
                             standoff: 5
                         },
                         // Only set range for vertical (non-bar) accuracy charts
-                        range: (!isBarChartMode && !isTokenMode) ? [0, yAxisMax] : undefined,
+                        range: (!isBarChartMode && !isTokenMode && !isBetaMode) ? [0, yAxisMax] : undefined,
                         // For horizontal bar charts, display in the order provided (already sorted)
                         categoryorder: isBarChartMode && !isTokenMode ? 'trace' : undefined,
                         // Reverse the order for horizontal bar charts to have highest at top
@@ -672,9 +745,10 @@
                     },
                     legend: showLegend ? {
                         title: {
-                            text: isTokenMode ? 'Doubt<br>Injection<br>Probability' : 
+                            text: isBetaMode ? 'Beta<br>Distributions' :
+                                  (isTokenMode ? 'Doubt<br>Injection<br>Probability' : 
                                    (document.getElementById('barChartToggle') && document.getElementById('barChartToggle').checked ? 
-                                    'Injection String' : 'Doubt<br>Injection<br>Probability'),
+                                    'Injection String' : 'Doubt<br>Injection<br>Probability')),
                             font: { size: 13 }
                         }
                     } : {},
@@ -1166,6 +1240,90 @@
             }
             
             console.log("Bar chart traces created:", traces.length);
+        }
+        
+        function plotBetaDistributions(traces) {
+            console.log("plotBetaDistributions called");
+            
+            // Get parameters from the input fields
+            const alpha1 = parseFloat(document.getElementById('beta1Alpha').value) || 2;
+            const beta1 = parseFloat(document.getElementById('beta1Beta').value) || 5;
+            const alpha2 = parseFloat(document.getElementById('beta2Alpha').value) || 5;
+            const beta2 = parseFloat(document.getElementById('beta2Beta').value) || 2;
+            
+            console.log("Beta parameters:", { alpha1, beta1, alpha2, beta2 });
+            
+            // Generate x values from 0 to 1 with fine resolution
+            const numPoints = 1000;
+            const xValues = [];
+            for (let i = 0; i <= numPoints; i++) {
+                xValues.push(i / numPoints);
+            }
+            
+            // Calculate PDF values for both distributions
+            const yValues1 = xValues.map(x => jStat.beta.pdf(x, alpha1, beta1));
+            const yValues2 = xValues.map(x => jStat.beta.pdf(x, alpha2, beta2));
+            
+            console.log("Generated PDF values, max1:", Math.max(...yValues1), "max2:", Math.max(...yValues2));
+            
+            // Create traces for both distributions
+            traces.push({
+                x: xValues,
+                y: yValues1,
+                type: 'scatter',
+                mode: 'lines',
+                name: `Beta(${alpha1}, ${beta1})`,
+                line: {
+                    color: 'rgb(255, 0, 0)',  // Red
+                    width: 2
+                },
+                hovertemplate: 'x: %{x:.3f}<br>PDF: %{y:.3f}<br>Beta(α=%{customdata[0]}, β=%{customdata[1]})<extra></extra>',
+                customdata: xValues.map(() => [alpha1, beta1])
+            });
+            
+            traces.push({
+                x: xValues,
+                y: yValues2,
+                type: 'scatter',
+                mode: 'lines',
+                name: `Beta(${alpha2}, ${beta2})`,
+                line: {
+                    color: 'rgb(0, 0, 255)',  // Blue
+                    width: 2
+                },
+                hovertemplate: 'x: %{x:.3f}<br>PDF: %{y:.3f}<br>Beta(α=%{customdata[0]}, β=%{customdata[1]})<extra></extra>',
+                customdata: xValues.map(() => [alpha2, beta2])
+            });
+            
+            // Add fill under curves if error bars are enabled (reuse this setting for fill)
+            const showFill = document.getElementById('showErrorBars').checked;
+            if (showFill) {
+                // Fill under curve 1
+                traces.push({
+                    x: [...xValues, ...xValues.slice().reverse()],
+                    y: [...yValues1, ...new Array(xValues.length).fill(0)],
+                    fill: 'toself',
+                    fillcolor: 'rgba(255, 0, 0, 0.2)',
+                    line: { width: 0 },
+                    mode: 'none',
+                    showlegend: false,
+                    hoverinfo: 'skip'
+                });
+                
+                // Fill under curve 2
+                traces.push({
+                    x: [...xValues, ...xValues.slice().reverse()],
+                    y: [...yValues2, ...new Array(xValues.length).fill(0)],
+                    fill: 'toself',
+                    fillcolor: 'rgba(0, 0, 255, 0.2)',
+                    line: { width: 0 },
+                    mode: 'none',
+                    showlegend: false,
+                    hoverinfo: 'skip'
+                });
+            }
+            
+            console.log("Beta distribution traces created:", traces.length);
         }
         
         function selectAll(type) {

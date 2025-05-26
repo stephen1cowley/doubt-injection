@@ -258,9 +258,13 @@
                     <span>Show Error Bars</span>
                 </label>
 
-                <label style="display: flex; align-items: center;">
-                    <input type="checkbox" id="colorSchemeToggle" onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
-                    <span>Purple-Green Color Scheme</span>
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="margin-right: 10px;">Color Scheme:</span>
+                    <select id="colorSchemeSelect" onchange="updatePlot()" style="flex: 1; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="default">Red-Magenta-Blue</option>
+                        <option value="purpleGreen">Purple-Teal-Green</option>
+                        <option value="rainbow">Red-Yellow-Cyan-Blue</option>
+                    </select>
                 </label>
 
                 <label style="display: flex; align-items: center;">
@@ -801,12 +805,19 @@
         
         // Function to get color stops based on current color scheme
         function getColorStops() {
-            const isPurpleGreen = document.getElementById('colorSchemeToggle').checked;
-            if (isPurpleGreen) {
+            const colorScheme = document.getElementById('colorSchemeSelect').value;
+            if (colorScheme === 'purpleGreen') {
                 return [
                     { pos: 0, color: [147, 42, 170] },     // Medium-dark Purple
                     { pos: 0.5, color: [50, 100, 167] },   // Medium Teal
                     { pos: 1, color: [0, 180, 0] }        // More Vivid Green
+                ];
+            } else if (colorScheme === 'rainbow') {
+                return [
+                    { pos: 0, color: [255, 0, 0] },       // Red
+                    { pos: 0.33, color: [255, 255, 0] },  // Yellow
+                    { pos: 0.67, color: [0, 255, 255] },  // Cyan
+                    { pos: 1, color: [0, 0, 255] }        // Blue
                 ];
             } else {
                 return [
