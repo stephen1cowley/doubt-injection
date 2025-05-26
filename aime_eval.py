@@ -176,7 +176,7 @@ def main():
             if curr_token in doubtful_prefix and in_cot:
                 if input_ids.shape[1] >= 9000:
                     # Inject the end of thought token
-                    end_think_token = tokenizer.encode("</think>", return_tensors="pt",
+                    end_think_token = tokenizer.encode("</think>\n\n", return_tensors="pt",
                                                        add_special_tokens=False).to(model.device)
                     input_ids = torch.cat(
                         [input_ids, next_token, end_think_token], dim=-1)
