@@ -30,12 +30,13 @@ for file in files:
         # Only load results from after 2025-05-25
         
         print(file)
-        if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748347200:
-            continue
+        # if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748347200:
+        #     continue
         results: List[dict] = json.load(f)
         print(file)
 
         for result in results:
+            print(result)
             # Handle case where injection_string key doesn't exist
             if "injection_string" not in result:
                 continue
