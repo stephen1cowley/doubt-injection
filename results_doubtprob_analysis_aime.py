@@ -46,6 +46,7 @@ for file in files:
             try:
                 llm_answer = int(result["llm_answer"])
             except ValueError:
+                print("LLM answer is not an integer:", result["llm_answer"])
                 llm_answer = None
             correct_answer = int(result["correct_answer"])
             print(result["response_length"], llm_answer == correct_answer)
