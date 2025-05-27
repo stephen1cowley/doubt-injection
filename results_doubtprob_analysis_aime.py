@@ -81,6 +81,7 @@ for file in files:
             #     )
             
             # Determine if length of response is greater than 10000
+            print("response_length:", result["response_length"], type(result["response_length"]))
             if result["response_length"] > 9800:
                 results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
