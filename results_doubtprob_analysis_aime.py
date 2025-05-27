@@ -28,7 +28,7 @@ for file in files:
     print(file)
     with open(os.path.join(f"responses/aime/{file}"), "r") as f:
         # Only load results from after 2025-05-25
-        if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748304060:
+        if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748347200:
             continue
         results: List[dict] = json.load(f)
 
@@ -95,5 +95,5 @@ for file in files:
 
 # Save results_summary to json
 print(results_per_doubtprob)
-with open("results_per_doubtprob_aime_laterchange_morning.json", "w") as f:
+with open("results_per_doubtprob_aime_newlim.json", "w") as f:
     json.dump(results_per_doubtprob, f, indent=4)
