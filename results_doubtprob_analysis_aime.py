@@ -69,20 +69,7 @@ for file in files:
                 continue
 
             # Update counts
-            # if llm_answer == correct_answer:
-            #     results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
-            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
-            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
-            #     )
-            # else:
-            #     results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
-            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][0],
-            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
-            #     )
-            
-            # Determine if length of response is greater than 10000
-            print("response_length:", result["response_length"], type(result["response_length"]))
-            if result["response_length"] > 9800:
+            if llm_answer == correct_answer:
                 results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
@@ -92,8 +79,21 @@ for file in files:
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][0],
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
                 )
+            
+            # Determine if length of response is greater than 10000
+            # print("response_length:", result["response_length"], type(result["response_length"]))
+            # if result["response_length"] > 9800:
+            #     results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][0] + 1,
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
+            #     )
+            # else:
+            #     results_per_doubtprob[question_id][temperature][doubt_injection_prob] = (
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][0],
+            #         results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
+            #     )
 
 # Save results_summary to json
 print(results_per_doubtprob)
-with open("results_per_doubtprob_aime_laterchange_exceeding.json", "w") as f:
+with open("results_per_doubtprob_aime_laterchange_morning.json", "w") as f:
     json.dump(results_per_doubtprob, f, indent=4)
