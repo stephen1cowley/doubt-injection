@@ -30,7 +30,7 @@ for file in files:
         # Only load results from after 2025-05-25
         
         print(file)
-        if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748347200:
+        if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748329200:
             continue
         results: List[dict] = json.load(f)
         print(file)
