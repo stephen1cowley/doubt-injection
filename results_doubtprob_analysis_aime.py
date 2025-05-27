@@ -70,8 +70,8 @@ for file in files:
 
             # HARD CODED:
             # cap at 4 (experiment is AVG@4)
-            if results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] >= 4:
-                continue
+            # if results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] >= 4:
+            #     continue
 
             # Update counts
             if llm_answer == correct_answer:
