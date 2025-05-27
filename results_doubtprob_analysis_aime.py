@@ -28,7 +28,8 @@ for file in files:
     # print(file)
     with open(os.path.join(f"responses/aime/{file}"), "r") as f:
         # Only load results from after 2025-05-25
-
+        
+        print(file)
         if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748347200:
             continue
         results: List[dict] = json.load(f)
