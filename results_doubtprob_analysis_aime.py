@@ -25,12 +25,14 @@ for file in os.listdir("responses/aime"):
 results_per_doubtprob: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
 
 for file in files:
-    print(file)
+    # print(file)
     with open(os.path.join(f"responses/aime/{file}"), "r") as f:
         # Only load results from after 2025-05-25
+
         if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748347200:
             continue
         results: List[dict] = json.load(f)
+        print(file)
 
         for result in results:
             # Handle case where injection_string key doesn't exist
@@ -42,7 +44,8 @@ for file in files:
             question_id = str(result["question_id"])
             temperature = str(result["temperature"])
             llm_name = str(result["llm_name"])
-            print(llm_name)
+            # print(llm_name)
+            print(result)
             try:
                 llm_answer = int(result["llm_answer"])
             except ValueError:
