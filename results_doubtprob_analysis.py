@@ -26,7 +26,7 @@ for file in os.listdir("responses"):
 results_per_doubtprob: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
 
 for file in files:
-    if int(re.sub('[a-zA-Z]', '', file.split("_")[-1].split(".")[0])) < 1748336400:
+    if int(re.sub('[a-zA-Z]', '', file.split("_")[-1].split(".")[0])) < 1748332800:
         # Not interested if it was one of the old results (before 8:00am 13th March)
         continue
     print(file)
