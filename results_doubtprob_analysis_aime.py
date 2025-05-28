@@ -24,6 +24,8 @@ for file in os.listdir("responses/aime"):
 # question -> (temperature -> (doubt_injection_prob -> (correct, total)))
 results_per_doubtprob: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {}
 
+response_len_per_doubtprob: Dict[str, List[int]] = {"0.0": [], "0.1": []}
+
 for file in files:
     # print(file)
     with open(os.path.join(f"responses/aime/{file}"), "r") as f:
@@ -33,10 +35,10 @@ for file in files:
         if int(file.split(".")[-2].split("_")[-1][1:]) <= 1748329200:
             continue
         results: List[dict] = json.load(f)
-        print(file)
+        # print(file)
 
         for result in results:
-            print(result)
+            # print(result)
             # Handle case where injection_string key doesn't exist
             if "injection_string" not in result:
                 continue
@@ -47,14 +49,14 @@ for file in files:
             temperature = str(result["temperature"])
             llm_name = str(result["llm_name"])
             # print(llm_name)
-            print(result)
+            # print(result)
             try:
                 llm_answer = int(result["llm_answer"])
             except ValueError:
-                print("LLM answer is not an integer:", result["llm_answer"])
+                # print("LLM answer is not an integer:", result["llm_answer"])
                 llm_answer = None
             correct_answer = int(result["correct_answer"])
-            print(result["response_length"], llm_answer == correct_answer)
+            # print(result["response_length"], llm_answer == correct_answer)
             doubt_injection_prob = str(result["doubt_injection_prob"])
 
             if llm_name == "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B":
@@ -85,6 +87,8 @@ for file in files:
                     results_per_doubtprob[question_id][temperature][doubt_injection_prob][1] + 1
                 )
             
+            response_len_per_doubtprob[doubt_injection_prob].append(result["response_length"])
+            
             # Determine if length of response is greater than 10000
             # print("response_length:", result["response_length"], type(result["response_length"]))
             # if result["response_length"] > 9800:
@@ -102,3 +106,6 @@ for file in files:
 print(results_per_doubtprob)
 with open("results_per_doubtprob_aime_newlim.json", "w") as f:
     json.dump(results_per_doubtprob, f, indent=4)
+
+with open("response_len_per_doubtprob_aime_newlim.json", "w") as f:
+    json.dump(response_len_per_doubtprob, f, indent=4)
