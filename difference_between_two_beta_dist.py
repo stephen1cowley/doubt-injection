@@ -53,8 +53,8 @@ def plot_beta_distributions(alpha1, beta1, alpha2, beta2):
 if __name__ == "__main__":
     # Example parameters for two Beta distributions
     # These could represent accuracy distributions for two LLM settings
-    alpha1, beta1 = 32, 90  # First setting: 80 correct answers, 20 incorrect
-    alpha2, beta2 = 29, 93  # Second setting: 75 correct answers, 25 incorrect
+    alpha1, beta1 = 143, 339  # First setting: 80 correct answers, 20 incorrect
+    alpha2, beta2 = 141, 341  # Second setting: 75 correct answers, 25 incorrect
     
     # Calculate probability that the first setting is better
     prob = prob_beta1_greater_beta2(alpha1, beta1, alpha2, beta2)
