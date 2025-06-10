@@ -1,0 +1,14 @@
+[
+  {
+    "temperature": 0.6,
+    "response_length": 15808,
+    "llm_answer": "35",
+    "correct_answer": "371",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 3,
+    "top_p": 0.95,
+    "prompt_name": "aime_deepseek.txt",
+    "doubt_injection_prob": 0.0,
+    "injection_string": "But"
+  }
+]

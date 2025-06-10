@@ -1,0 +1,79 @@
+[
+  {
+    "temperature": 0.0,
+    "response_length": 370,
+    "llm_answer": "E",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  },
+  {
+    "temperature": 0.2,
+    "response_length": 506,
+    "llm_answer": "X",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  },
+  {
+    "temperature": 0.4,
+    "response_length": 325,
+    "llm_answer": "X",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  },
+  {
+    "temperature": 0.6,
+    "response_length": 297,
+    "llm_answer": "E",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  },
+  {
+    "temperature": 0.8,
+    "response_length": 307,
+    "llm_answer": "X",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  },
+  {
+    "temperature": 1.0,
+    "response_length": 246,
+    "llm_answer": "X",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  },
+  {
+    "temperature": 1.2,
+    "response_length": 320,
+    "llm_answer": "X",
+    "correct_answer": "A",
+    "llm_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "question_id": 2,
+    "top_p": 0.95,
+    "prompt_name": "simplebench_deepseek.txt",
+    "doubt_injection_prob": 0.0
+  }
+]
