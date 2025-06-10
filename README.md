@@ -2,6 +2,13 @@
 
 arXiv paper: (link coming soon)
 
+Doubt Injection is a proposed technique which aims to encourage an LLM's Chain-of-Thought (CoT) to explore a wider set of ideas---motivated by observations of idea exploration in CoTs. This is done by randomly injecting a statement e.g. `"But"` at each new paragraph in the CoT. This can make marginal (but currently statistically insignificant) improvements of DeepSeek on arithmetic reasoning (29.2% $\rightarrow$ 29.6%) and adversarial question datasets (26.1% $\rightarrow$ 26.7%).
+
+Example:
+
+<img src="https://github.com/user-attachments/assets/ccb1ea5d-5439-4bed-bedc-8fdc638e0be0" style="width: 30%; height: auto;" alt="Screenshot 2025-05-28 114406">
+
+
 ## Evaluation Code
 First install PyTorch from the official website. Then:
 ```
