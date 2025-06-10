@@ -10,6 +10,8 @@ Example:
 
 <img src="https://github.com/user-attachments/assets/ccb1ea5d-5439-4bed-bedc-8fdc638e0be0" style="width: 30%; height: auto;" alt="Screenshot 2025-05-28 114406">
 
+The research investigates the effect of injection string, injection probability, temperature and model size on the performance of Doubt Injection generation compared with regular generation.
+
 The paper also lays out a simple statistical framework to gauge the significance of LLM accuracy results, that we hope will be used more widely. For example for 1 run through a 200-question dataset, the claim that LLM B (73.0%) is better than LLM A (72.5%) is statistically insignificant: there is only  54% chance that LLM B has a higher true accuracy than LLM A. This comes from comparing posterior probability distributions over LLM accuracy.
 
 ## Evaluation Code
