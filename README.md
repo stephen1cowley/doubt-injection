@@ -10,9 +10,10 @@ Example:
 
 <img src="https://github.com/user-attachments/assets/ccb1ea5d-5439-4bed-bedc-8fdc638e0be0" style="width: 30%; height: auto;" alt="Screenshot 2025-05-28 114406">
 
+The paper also lays out a simple statistical framework to gauge the significance of LLM accuracy results, that we hope will be used more widely. For example for 1 run through a 200-question dataset, the claim that LLM B (73.0%) is better than LLM A (72.5%) is statistically insignificant: there is only  54% chance that LLM B has a higher true accuracy (by comparing posterior probability distributions over LLM accuracy).
 
 ## Evaluation Code
-This repository contains the evaluation scripts used in obtaining all results provided in the research paper, primarily on AIME 2024 and SimpleBench. Additional scripts used to obtain motivating results, analyse the ideas explored in CoT responses, make changes to the formatting of result files are provided in `additional_results/`.
+This repository contains the evaluation scripts used in obtaining all results provided in the research paper, primarily on AIME 2024 and SimpleBench benchmarks. Additional scripts used to obtain motivating results, analyse the ideas explored in CoT responses, make changes to the formatting of result files are provided in `additional_results/`.
 
 ### To run
 First install PyTorch from the official website. Then:
