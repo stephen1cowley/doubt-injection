@@ -1,5 +1,7 @@
 # Doubt Injection
+
 arXiv paper: (link coming soon)
+
 Part of MEng project "Mitigating Hallucinations in LLMs", supervised by Dr Marcus Tomalin
 
 Doubt Injection is a proposed technique which aims to encourage an LLM's Chain-of-Thought (CoT) to explore a wider set of ideas---motivated by observations of idea exploration in CoTs. This is done by randomly injecting a statement e.g. `"But"` at each new paragraph in the CoT. This can make marginal (but currently statistically insignificant) improvements of DeepSeek on arithmetic reasoning (29.2% $\rightarrow$ 29.6%) and adversarial question datasets (26.1% $\rightarrow$ 26.7%).
