@@ -1,3 +1,11 @@
+"""
+This script is used to evaluate the performance of a given LLM on the SimpleBench dataset.
+
+Usage:
+python simplebench_eval.py --doubt_injection 0 --llm_name "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+    --prompt_name "simplebench_deepseek.txt" --temperature_set "0.6" --injection_string "But"
+"""
+
 from typing import List, Dict
 import json
 import torch
@@ -163,13 +171,17 @@ def main():
             if first_token:
                 first_token = False
 
+        # Generation has now finished
+        # Decode the generated tokens to extract the final answer
         llm_response: str = tokenizer.decode(
             input_ids[0],
             skip_special_tokens=True
         )[len(llm_prompt):]
 
+        # Extract the answer from the response
         llm_answer: str = llm_response.split('<answer>')[-1].split('</answer>')[0].strip()
 
+        # Check if the answer is a single character
         print("\n")
         if len(llm_answer) != 1:
             print(f"LLM failed to generate a single answer for question {question_id + 1}")

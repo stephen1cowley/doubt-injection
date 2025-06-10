@@ -3,6 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class ExperimentResult:
+    """
+    This class is used to store the results of an experiment.
+    """
     temperature: float
     response_length: int
     llm_answer: str

@@ -201,11 +201,14 @@ def main():
             
             num_tokens += 1
 
+        # Generation has now finished
+        # Decode the generated tokens to extract the final answer
         llm_response: str = tokenizer.decode(
             input_ids[0],
             skip_special_tokens=True
         )
 
+        # Extract the answer from the response
         llm_answer: str = llm_response.split('\\boxed{')[-1].split('}')[0].strip()
 
         print("\n")

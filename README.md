@@ -15,6 +15,8 @@ The paper also lays out a simple statistical framework to gauge the significance
 ## Evaluation Code
 This repository contains the evaluation scripts used in obtaining all results provided in the research paper, primarily on AIME 2024 and SimpleBench benchmarks. Additional scripts used to obtain motivating results, analyse the ideas explored in CoT responses, make changes to the formatting of result files are provided in `additional_results/`.
 
+A small number of example LLM responses and experimental results are provided in `responses/`.
+
 ### To run
 First install PyTorch from the official website. Then:
 ```
