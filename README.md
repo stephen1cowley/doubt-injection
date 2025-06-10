@@ -10,6 +10,8 @@ Example:
 
 
 ## Evaluation Code
+This repository contains the evaluation scripts used in obtaining all results shown in the research paper, primarily on AIME 2024 and SimpleBench.
+
 First install PyTorch from the official website. Then:
 ```
 pip install numpy pandas transformers protobuf sentencepiece
