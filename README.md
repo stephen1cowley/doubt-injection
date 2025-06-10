@@ -4,7 +4,7 @@
 
 **arXiv paper:** (link coming soon)
 
-Doubt Injection is a proposed technique which aims to encourage an LLM's Chain-of-Thought (CoT) to explore a wider set of ideas---motivated by observations of idea exploration in CoTs. This is done by randomly injecting a statement e.g. `"But"` at each new paragraph in the CoT. This can make marginal (but currently statistically insignificant) improvements of DeepSeek on arithmetic reasoning (29.2% $\rightarrow$ 29.6%) and adversarial question datasets (26.1% $\rightarrow$ 26.7%).
+Doubt Injection is a proposed technique that aims to encourage an LLM's Chain-of-Thought (CoT) to explore a wider set of ideas---motivated by observations of idea exploration in CoTs. This is done by randomly injecting a statement e.g. `"But"` at each new paragraph in the CoT. This can make marginal (but currently statistically insignificant) improvements of distilled DeepSeek on arithmetic reasoning (29.2% $\rightarrow$ 29.6%) and adversarial question datasets (26.1% $\rightarrow$ 26.7%).
 
 Example:
 
@@ -12,8 +12,9 @@ Example:
 
 
 ## Evaluation Code
-This repository contains the evaluation scripts used in obtaining all results shown in the research paper, primarily on AIME 2024 and SimpleBench.
+This repository contains the evaluation scripts used in obtaining all results provided in the research paper, primarily on AIME 2024 and SimpleBench. Additional scripts used to obtain motivating results, analyse the ideas explored in CoT responses, make changes to the formatting of result files are provided in `additional_results/`.
 
+### To run
 First install PyTorch from the official website. Then:
 ```
 pip install numpy pandas transformers protobuf sentencepiece
