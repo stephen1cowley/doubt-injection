@@ -47,7 +47,7 @@ def main():
     args = parse_args()
     llm_name: str = args.llm_name
     temperature: float = float(args.temperature_set)
-    max_length: int = 10000
+    max_length: int = 32768
     top_p: float = 0.95
     prompt_name: str = args.prompt_name
     doubt_injection_prob: float = args.doubt_injection / 100
@@ -96,9 +96,9 @@ def main():
     # Set doubtful statement
     if args.doubt_injection:
         doubtful_statement_ids: torch.Tensor = tokenizer.encode(
-            injection_string, return_tensors="pt").to(model.device)
+            injection_string, return_tensors="pt", add_special_tokens=False).to(model.device)
 
-        doubtful_prefix: List[str] = [".\n\n", " \n\n", "\n\n",  ". \n\n"]
+    doubtful_prefix: List[str] = [".\n\n", " \n\n", "\n\n",  ". \n\n"]
 
     for q_id in range(num_questions):
         if spec_question:
@@ -121,6 +121,7 @@ def main():
         # Generate one token at a time
         first_token: bool = True
         in_cot: bool = True
+        num_tokens: int = 0
         while True:
             # Generate next token using forward pass
             with torch.no_grad():
@@ -169,14 +170,24 @@ def main():
 
             # Break if we hit the end token or max length
             if next_token[0] == tokenizer.eos_token_id or input_ids.shape[1] >= max_length:
+                print(f"###Reached max length: {input_ids.shape[1]}###")
                 break
 
             if args.doubt_injection and curr_token in doubtful_prefix and in_cot:
+                # if input_ids.shape[1] >= 9000:
+                #     # Inject the end of thought token
+                #     end_think_token = tokenizer.encode("</think>\n\n", return_tensors="pt",
+                #                                        add_special_tokens=False).to(model.device)
+                #     input_ids = torch.cat(
+                #         [input_ids, next_token, end_think_token], dim=-1)
+                #     print(curr_token + "</think>" + "###forced_stop###", end='', flush=True)
+                #     in_cot = False
+                # elif args.doubt_injection:
                 # Inject doubt into the response on '.\n\n'
                 if torch.bernoulli(torch.tensor([doubt_injection_prob])).item() == 1:
                     input_ids = torch.cat(
                         [input_ids, next_token, doubtful_statement_ids], dim=-1)
-                    print(curr_token + injection_string, end='', flush=True)
+                    print(curr_token + injection_string + "###injection###", end='', flush=True)
                 else:
                     input_ids = torch.cat([input_ids, next_token], dim=-1)
                     print(curr_token, end='', flush=True)
@@ -187,6 +198,8 @@ def main():
 
             if first_token:
                 first_token = False
+            
+            num_tokens += 1
 
         llm_response: str = tokenizer.decode(
             input_ids[0],

@@ -167,6 +167,26 @@
                 <span class="toggle-label" id="betaModeLabel">Off</span>
             </div>
             
+            <!-- Add Beta Mode 2 toggle -->
+            <div class="toggle-container">
+                <div style="margin-bottom: 8px; font-weight: 600;">Beta Mode 2 (CI Display):</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="betaMode2Toggle" onclick="toggleBetaMode2()">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="betaMode2Label">Off</span>
+            </div>
+            
+            <!-- Add Equal Question Weighting toggle -->
+            <div class="toggle-container">
+                <div style="margin-bottom: 8px; font-weight: 600;">Equal Question Weighting:</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="equalWeightingToggle" onclick="updatePlot()">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="equalWeightingLabel">Off</span>
+            </div>
+            
             <!-- Beta Distribution Controls -->
             <div id="betaControls" style="display: none; margin-bottom: 15px;">
                 <h3>Beta Distribution Parameters:</h3>
@@ -201,6 +221,60 @@
                                style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
                                onchange="updatePlot()">
                     </div>
+                </div>
+            </div>
+            
+            <!-- Beta Mode 2 Controls -->
+            <div id="betaMode2Controls" style="display: none; margin-bottom: 15px;">
+                <h3>Beta Distribution Parameters:</h3>
+                
+                <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">Beta Distribution:</h4>
+                    <div style="margin-bottom: 10px;">
+                        <label for="betaMode2Alpha" style="display: block; margin-bottom: 5px;">Alpha (α):</label>
+                        <input type="number" id="betaMode2Alpha" min="0.1" step="0.1" value="2" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                               onchange="updatePlot()">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label for="betaMode2Beta" style="display: block; margin-bottom: 5px;">Beta (β):</label>
+                        <input type="number" id="betaMode2Beta" min="0.1" step="0.1" value="5" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                               onchange="updatePlot()">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histogram Controls -->
+            <div id="histogramControls" style="display: none; margin-bottom: 15px;">
+                <h3>Histogram Parameters:</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="histogramBinSize" style="display: block; margin-bottom: 5px;">Bin Size:</label>
+                    <input type="number" id="histogramBinSize" min="1" step="1" value="400" 
+                           style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;"
+                           onchange="updatePlot()">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" id="histogramNormalize" onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
+                        <span>Normalize to Probability Density</span>
+                    </label>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" id="histogramOverlay" onclick="updatePlot()" checked style="margin-right: 10px; width: 18px; height: 18px;">
+                        <span>Overlay Histograms</span>
+                    </label>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="histogramOpacity" style="display: block; margin-bottom: 5px;">Opacity (0.1-1.0):</label>
+                    <input type="range" id="histogramOpacity" min="0.1" max="1.0" step="0.05" value="0.7"
+                           style="width: 100%;" oninput="updateHistogramOpacityValue(this.value)" onchange="updatePlot()">
+                    <div id="histogramOpacityValue" style="text-align: center; margin-top: 5px;">0.7</div>
                 </div>
             </div>
             
@@ -258,9 +332,13 @@
                     <span>Show Error Bars</span>
                 </label>
 
-                <label style="display: flex; align-items: center;">
-                    <input type="checkbox" id="colorSchemeToggle" onclick="updatePlot()" style="margin-right: 10px; width: 18px; height: 18px;">
-                    <span>Purple-Green Color Scheme</span>
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="margin-right: 10px;">Color Scheme:</span>
+                    <select id="colorSchemeSelect" onchange="updatePlot()" style="flex: 1; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="default">Red-Magenta-Blue</option>
+                        <option value="purpleGreen">Purple-Teal-Green</option>
+                        <option value="rainbow">Red-Yellow-Cyan-Blue</option>
+                    </select>
                 </label>
 
                 <label style="display: flex; align-items: center;">
@@ -283,6 +361,13 @@
                     <input type="range" id="barWidth" min="0.1" max="1.0" step="0.05" value="0.5"
                            style="width: 100%;" oninput="updateBarWidthValue(this.value)" onchange="updatePlot()">
                     <div id="barWidthValue" style="text-align: center; margin-top: 5px;">0.5</div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <label for="textLineLength" style="display: block; margin-bottom: 5px;">Text Line Length (15-60 chars):</label>
+                    <input type="range" id="textLineLength" min="15" max="60" step="1" value="30"
+                           style="width: 100%;" oninput="updateTextLineLengthValue(this.value)" onchange="updatePlot()">
+                    <div id="textLineLengthValue" style="text-align: center; margin-top: 5px;">30</div>
                 </div>
             </div>
             
@@ -332,6 +417,7 @@
         let accuracyData = null;
         let tokenData = null;
         let injectionData = null;
+        let histogramData = null;
         
         // Toggle event handler
         document.getElementById('dataStructureToggle').addEventListener('change', function() {
@@ -352,6 +438,12 @@
             updatePlot();
         });
         
+        // Equal weighting toggle event handler
+        document.getElementById('equalWeightingToggle').addEventListener('change', function() {
+            const equalWeightingLabel = document.getElementById('equalWeightingLabel');
+            equalWeightingLabel.textContent = this.checked ? "On" : "Off";
+        });
+        
         // Beta mode toggle function
         function toggleBetaMode() {
             const betaModeToggle = document.getElementById('betaModeToggle');
@@ -361,9 +453,44 @@
             if (betaModeToggle.checked) {
                 betaModeLabel.textContent = "On";
                 betaControls.style.display = 'block';
+                // Turn off Beta Mode 2 if it's on
+                const betaMode2Toggle = document.getElementById('betaMode2Toggle');
+                const betaMode2Label = document.getElementById('betaMode2Label');
+                const betaMode2Controls = document.getElementById('betaMode2Controls');
+                if (betaMode2Toggle.checked) {
+                    betaMode2Toggle.checked = false;
+                    betaMode2Label.textContent = "Off";
+                    betaMode2Controls.style.display = 'none';
+                }
             } else {
                 betaModeLabel.textContent = "Off";
                 betaControls.style.display = 'none';
+            }
+            
+            updatePlot();
+        }
+        
+        // Beta mode 2 toggle function
+        function toggleBetaMode2() {
+            const betaMode2Toggle = document.getElementById('betaMode2Toggle');
+            const betaMode2Label = document.getElementById('betaMode2Label');
+            const betaMode2Controls = document.getElementById('betaMode2Controls');
+            
+            if (betaMode2Toggle.checked) {
+                betaMode2Label.textContent = "On";
+                betaMode2Controls.style.display = 'block';
+                // Turn off Beta Mode 1 if it's on
+                const betaModeToggle = document.getElementById('betaModeToggle');
+                const betaModeLabel = document.getElementById('betaModeLabel');
+                const betaControls = document.getElementById('betaControls');
+                if (betaModeToggle.checked) {
+                    betaModeToggle.checked = false;
+                    betaModeLabel.textContent = "Off";
+                    betaControls.style.display = 'none';
+                }
+            } else {
+                betaMode2Label.textContent = "Off";
+                betaMode2Controls.style.display = 'none';
             }
             
             updatePlot();
@@ -385,25 +512,29 @@
                     // Determine data structure type based on content
                     const isToken = isTokenData(jsonData);
                     const isInjection = isInjectionData(jsonData);
+                    const isHistogram = isHistogramData(jsonData);
                     console.log("Data structure detection result:", 
-                        isToken ? "Token Data" : (isInjection ? "Injection Data" : "Accuracy Data"));
+                        isToken ? "Token Data" : (isInjection ? "Injection Data" : (isHistogram ? "Histogram Data" : "Accuracy Data")));
                     
                     if (isToken) {
                         console.log("Setting token data...");
                         tokenData = jsonData;
                         accuracyData = null;
                         injectionData = null;
+                        histogramData = null;
                         document.getElementById('dataStructureToggle').checked = true;
                         document.getElementById('toggleLabel').textContent = "Token Count Data";
                         document.getElementById('questionSection').style.display = 'none';
                         if (document.getElementById('barChartToggle')) 
                             document.getElementById('barChartToggle').parentElement.style.display = 'none';
+                        // Hide histogram controls
                         console.log("Token data set:", Object.keys(tokenData).length, "probabilities");
                     } else if (isInjection) {
                         console.log("Setting injection data...");
                         injectionData = jsonData;
                         accuracyData = null;
                         tokenData = null;
+                        histogramData = null;
                         document.getElementById('dataStructureToggle').checked = false;
                         document.getElementById('toggleLabel').textContent = "Accuracy Data";
                         document.getElementById('questionSection').style.display = 'block';
@@ -411,12 +542,31 @@
                             document.getElementById('barChartToggle').checked = true;
                             document.getElementById('barChartToggle').parentElement.style.display = 'block';
                         }
+                        // Hide histogram controls
+                        document.getElementById('histogramControls').style.display = 'none';
                         console.log("Injection data set:", Object.keys(injectionData).length, "questions");
+                    } else if (isHistogram) {
+                        console.log("Setting histogram data...");
+                        histogramData = jsonData;
+                        accuracyData = null;
+                        tokenData = null;
+                        injectionData = null;
+                        document.getElementById('dataStructureToggle').checked = false;
+                        document.getElementById('toggleLabel').textContent = "Histogram Data";
+                        document.getElementById('questionSection').style.display = 'block';
+                        if (document.getElementById('barChartToggle')) {
+                            document.getElementById('barChartToggle').checked = false;
+                            document.getElementById('barChartToggle').parentElement.style.display = 'block';
+                        }
+                        // Show histogram controls
+                        document.getElementById('histogramControls').style.display = 'block';
+                        console.log("Histogram data set:", Object.keys(histogramData).length, "data points");
                     } else {
                         console.log("Setting accuracy data...");
                         accuracyData = jsonData;
                         tokenData = null;
                         injectionData = null;
+                        histogramData = null;
                         document.getElementById('dataStructureToggle').checked = false;
                         document.getElementById('toggleLabel').textContent = "Accuracy Data";
                         document.getElementById('questionSection').style.display = 'block';
@@ -439,6 +589,18 @@
                                 <label>
                                     <input type="checkbox" value="${question}" onclick="updatePlot()" checked>
                                     <span>${question}</span>
+                                </label>
+                            `;
+                            questionList.appendChild(div);
+                        }
+                    } else if (histogramData) {
+                        // For histogram data, create checkboxes for each category
+                        for (let category in histogramData) {
+                            const div = document.createElement('div');
+                            div.innerHTML = `
+                                <label>
+                                    <input type="checkbox" value="${category}" onclick="updatePlot()" checked>
+                                    <span>${category}</span>
                                 </label>
                             `;
                             questionList.appendChild(div);
@@ -590,9 +752,56 @@
             }
         }
 
+        // Function to determine if data is histogram data
+        function isHistogramData(data) {
+            // Check if the data structure matches the histogram data format
+            // Histogram data has Dict[str, List[int]]
+            if (!data) return false;
+            
+            try {
+                console.log("Checking if data is histogram data format...");
+                
+                // Check if the structure is an object with at least one key
+                const keys = Object.keys(data);
+                if (keys.length === 0) return false;
+                console.log("Top-level keys:", keys);
+                
+                // Check the first key's value
+                const firstKey = keys[0];
+                const firstValue = data[firstKey];
+                
+                // Check if the value is an array
+                if (!Array.isArray(firstValue)) {
+                    console.log("Value is not an array:", typeof firstValue);
+                    return false;
+                }
+                
+                console.log("Value is an array with length:", firstValue.length);
+                
+                // Check if all elements in the array are integers
+                const allIntegers = firstValue.every(val => Number.isInteger(val));
+                console.log("All elements are integers:", allIntegers);
+                
+                // Additional check: verify that other keys also have arrays of integers
+                for (let key of keys.slice(1, 3)) { // Check up to 3 keys for efficiency
+                    const value = data[key];
+                    if (!Array.isArray(value) || !value.every(val => Number.isInteger(val))) {
+                        console.log(`Key ${key} doesn't have array of integers:`, value);
+                        return false;
+                    }
+                }
+                
+                return allIntegers;
+            } catch (error) {
+                console.error("Error detecting histogram data structure:", error);
+                return false;
+            }
+        }
+
         function updatePlot() {
             try {
                 const isBetaMode = document.getElementById('betaModeToggle').checked;
+                const isBetaMode2 = document.getElementById('betaMode2Toggle').checked;
                 const isTokenMode = document.getElementById('dataStructureToggle').checked;
                 const isBarChartMode = document.getElementById('barChartToggle') && 
                                       document.getElementById('barChartToggle').checked;
@@ -600,12 +809,14 @@
                 
                 console.log("updatePlot called:", {
                     isBetaMode,
+                    isBetaMode2,
                     isTokenMode,
                     isBarChartMode,
                     showErrorBars,
                     hasAccuracyData: !!accuracyData,
                     hasTokenData: !!tokenData,
-                    hasInjectionData: !!injectionData
+                    hasInjectionData: !!injectionData,
+                    hasHistogramData: !!histogramData
                 });
                 
                 // Get custom title and y-axis label values
@@ -619,6 +830,9 @@
                 if (isBetaMode) {
                     console.log("Using beta distribution mode");
                     plotBetaDistributions(traces);
+                } else if (isBetaMode2) {
+                    console.log("Using beta distribution mode 2");
+                    plotBetaDistribution2(traces);
                 } else if (isTokenMode && tokenData) {
                     console.log("Using token data mode");
                     // Token data plotting
@@ -633,6 +847,12 @@
                     let selectedProbs = Array.from(document.querySelectorAll('#probList input[type="checkbox"]:checked'))
                         .map(cb => cb.value);
                     plotInjectionBarChart(traces, selectedQuestions, selectedProbs, showErrorBars);
+                } else if (!isTokenMode && histogramData) {
+                    console.log("Using histogram data mode");
+                    // Histogram data plotting
+                    let selectedCategories = Array.from(document.querySelectorAll('#questionList input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
+                    plotHistogramData(traces, selectedCategories);
                 } else if (!isTokenMode && accuracyData) {
                     console.log("Using accuracy data mode");
                     // Accuracy data plotting
@@ -644,7 +864,7 @@
                 } else {
                     console.log("No appropriate data for selected mode");
                     // No appropriate data loaded for the selected mode
-                    Plotly.newPlot('plot', [], {title: `No ${isBetaMode ? 'beta distribution' : (isTokenMode ? 'token' : (isBarChartMode ? 'injection' : 'accuracy'))} data loaded`});
+                    Plotly.newPlot('plot', [], {title: `No ${isBetaMode ? 'beta distribution' : (isBetaMode2 ? 'beta distribution' : (isTokenMode ? 'token' : (isBarChartMode ? 'injection' : (histogramData ? 'histogram' : 'accuracy'))))} data loaded`});
                     return;
                 }
                 
@@ -693,22 +913,30 @@
                     title: showTitle ? {
                         text: customTitle || (isBetaMode
                             ? 'Beta Distribution Comparison<br><span style="font-size:12px">Probability Density Function (PDF)</span>'
-                            : (isTokenMode 
-                                ? (showErrorBars 
-                                    ? 'Token Count vs Temperature<br><span style="font-size:12px">Shaded areas represent interquartile range</span>'
-                                    : 'Token Count vs Temperature')
-                                : (isBarChartMode
-                                    ? 'Accuracy by Injection String<br><span style="font-size:12px">Comparing different injection strings</span>'
-                                    : (showErrorBars 
-                                        ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
-                                        : 'Accuracy vs Temperature')))),
+                            : (isBetaMode2
+                                ? 'Beta Distribution Comparison<br><span style="font-size:12px">Beta Distribution</span>'
+                                : (isTokenMode 
+                                    ? (showErrorBars 
+                                        ? 'Token Count vs Temperature<br><span style="font-size:12px">Shaded areas represent interquartile range</span>'
+                                        : 'Token Count vs Temperature')
+                                    : (histogramData
+                                        ? 'Response Length Distribution<br><span style="font-size:12px">Frequency distribution over multiple trials</span>'
+                                        : (isBarChartMode
+                                            ? 'Accuracy by Injection String<br><span style="font-size:12px">Comparing different injection strings</span>'
+                                            : (showErrorBars 
+                                                ? 'Accuracy vs Temperature<br><span style="font-size:12px">Shaded areas represent 95% confidence intervals from Beta distribution</span>'
+                                                : 'Accuracy vs Temperature')))))),
                         font: { size: 18 }
                     } : null,
                     xaxis: {
                         title: {
-                            text: customXAxisLabel || (isBetaMode ? 'x' : (isBarChartMode ? (isTokenMode ? 'Temperature' : 'Accuracy') : 'Temperature')),
+                            text: customXAxisLabel || (isBetaMode ? 'x' : (isBetaMode2 ? 'x' : (histogramData ? 'Response Length' : (isBarChartMode ? (isTokenMode ? 'Temperature' : 'Accuracy') : 'Temperature')))),
                             standoff: 5
                         },
+                        showline: histogramData ? false : undefined, // Hide x-axis line for histogram mode
+                        zeroline: histogramData ? false : undefined, // Hide zero line for histogram mode
+                        linewidth: histogramData ? 0 : undefined, // Set line width to 0 for histogram mode
+                        linecolor: histogramData ? 'rgba(0,0,0,0)' : undefined, // Make line transparent for histogram mode
                         tickangle: isBarChartMode ? 0 : undefined, // Horizontal text for bar chart
                         tickfont: isBarChartMode ? { size: 12 } : undefined, // Smaller font for bar chart
                         tickmode: isBarChartMode && !isTokenMode ? undefined : undefined, // Use array tickmode for bar chart
@@ -717,24 +945,29 @@
                         ticktext: isBarChartMode && !isTokenMode && traces.length > 0 && traces[0].x ? 
                                  undefined : undefined,
                         // Add forced whole number ticks if enabled (not for beta mode)
-                        dtick: !isBetaMode && document.getElementById('forceWholeTicks').checked ? 1 : undefined,
+                        dtick: !isBetaMode && !isBetaMode2 && document.getElementById('forceWholeTicks').checked ? 1 : undefined,
                         // For horizontal bar charts with accuracy data, set the range from 0 to max value with padding
                         range: isBarChartMode && !isTokenMode ? [0, isTokenMode ? null : Math.min(1, maxY * 1.1)] : 
-                               (isBetaMode ? [0, 1] : undefined)
+                               (isBetaMode ? [0, 1] : (isBetaMode2 ? [0, 1] : undefined))
                     },
                     yaxis: {
                         title: {
-                            text: customYAxisLabel || (isBetaMode ? 'Probability Density' : (isTokenMode ? 'Token Count' : (isBarChartMode ? 'Injection String' : 'Accuracy'))),
+                            text: customYAxisLabel || (isBetaMode ? 'Probability Density' : (isBetaMode2 ? 'Probability Density' : (histogramData ? 'Frequency' : (isTokenMode ? 'Token Count' : (isBarChartMode ? 'Injection String' : 'Accuracy'))))),
                             standoff: 5
                         },
                         // Only set range for vertical (non-bar) accuracy charts
-                        range: (!isBarChartMode && !isTokenMode && !isBetaMode) ? [0, yAxisMax] : undefined,
+                        range: (!isBarChartMode && !isTokenMode && !isBetaMode && !isBetaMode2 && !histogramData) ? [0, yAxisMax] : undefined,
                         // For horizontal bar charts, display in the order provided (already sorted)
                         categoryorder: isBarChartMode && !isTokenMode ? 'trace' : undefined,
                         // Reverse the order for horizontal bar charts to have highest at top
                         autorange: isBarChartMode && !isTokenMode ? 'reversed' : undefined,
-                        // For horizontal bar charts, adjust the text formatting
-                        tickfont: isBarChartMode && !isTokenMode ? { size: 12 } : undefined
+                        // For horizontal bar charts, adjust the text formatting and add spacing
+                        tickfont: isBarChartMode && !isTokenMode ? { size: 12 } : undefined,
+                        // Add padding between labels and axis for bar charts
+                        standoff: isBarChartMode && !isTokenMode ? 20 : undefined,
+                        // Add space between tick labels and axis line for bar charts
+                        ticklen: isBarChartMode && !isTokenMode ? 0 : undefined,
+                        tickpad: isBarChartMode && !isTokenMode ? 15 : undefined
                     },
                     hovermode: 'closest',
                     height: parseInt(document.getElementById('plotHeight').value) || 600,
@@ -746,13 +979,16 @@
                     legend: showLegend ? {
                         title: {
                             text: isBetaMode ? 'Beta<br>Distributions' :
-                                  (isTokenMode ? 'Doubt<br>Injection<br>Probability' : 
-                                   (document.getElementById('barChartToggle') && document.getElementById('barChartToggle').checked ? 
-                                    'Injection String' : 'Doubt<br>Injection<br>Probability')),
+                                  (isBetaMode2 ? 'Beta<br>Distribution' :
+                                   (histogramData ? 'Doubt<br>Injection<br>Probability' :
+                                    (isTokenMode ? 'Doubt<br>Injection<br>Probability' : 
+                                     (document.getElementById('barChartToggle') && document.getElementById('barChartToggle').checked ? 
+                                      'Injection String' : 'Doubt<br>Injection<br>Probability')))),
                             font: { size: 13 }
                         }
                     } : {},
-                    margin: isBarChartMode && !isTokenMode ? { l: 250 } : undefined // Add extra left margin for horizontal bar labels
+                    margin: isBarChartMode && !isTokenMode ? { l: 350, r: 50 } : undefined, // Increased left margin for horizontal bar labels with right padding
+                    barmode: histogramData && document.getElementById('histogramOverlay') && document.getElementById('histogramOverlay').checked ? 'overlay' : undefined
                 };
                 
                 console.log("Plotting with layout:", layout);
@@ -791,6 +1027,19 @@
                     }];
                 }
                 
+                // Add confidence interval annotation for Beta Mode 2
+                if (isBetaMode2 && traces.confidenceIntervalAnnotation) {
+                    if (!layout.annotations) {
+                        layout.annotations = [];
+                    }
+                    layout.annotations.push(traces.confidenceIntervalAnnotation);
+                    
+                    // Also add the mode annotation if it exists
+                    if (traces.modeAnnotation) {
+                        layout.annotations.push(traces.modeAnnotation);
+                    }
+                }
+                
                 Plotly.newPlot('plot', traces, layout);
                 console.log("Plot complete");
             } catch (error) {
@@ -801,17 +1050,24 @@
         
         // Function to get color stops based on current color scheme
         function getColorStops() {
-            const isPurpleGreen = document.getElementById('colorSchemeToggle').checked;
-            if (isPurpleGreen) {
+            const colorScheme = document.getElementById('colorSchemeSelect').value;
+            if (colorScheme === 'purpleGreen') {
                 return [
                     { pos: 0, color: [147, 42, 170] },     // Medium-dark Purple
                     { pos: 0.5, color: [50, 100, 167] },   // Medium Teal
                     { pos: 1, color: [0, 180, 0] }        // More Vivid Green
                 ];
+            } else if (colorScheme === 'rainbow') {
+                return [
+                    { pos: 0, color: [255, 0, 0] },       // Red
+                    { pos: 0.33, color: [255, 255, 0] },  // Yellow
+                    { pos: 0.67, color: [0, 255, 255] },  // Cyan
+                    { pos: 1, color: [0, 0, 255] }        // Blue
+                ];
             } else {
                 return [
                     { pos: 0, color: [255, 0, 0] },     // Red
-                    { pos: 0.5, color: [255, 0, 255] },  // Magenta
+                    { pos: 0.5, color: [150, 150, 150] },  // Magenta
                     { pos: 1, color: [0, 0, 255] }      // Blue
                 ];
             }
@@ -967,6 +1223,9 @@
                 return `rgb(${colorStops[colorStops.length - 1].color.join(',')})`;
             }
             
+            // Check if equal weighting is enabled
+            const equalWeighting = document.getElementById('equalWeightingToggle').checked;
+            
             for (let i = 0; i < uniqueProbs.length; i++) {
                 let prob = uniqueProbs[i];
                 let temperatures = [];
@@ -978,6 +1237,36 @@
                 const normalizedPos = 1 - (i / (uniqueProbs.length - 1 || 1));
                 const lineColor = interpolateColor(normalizedPos);
                 
+                // If equal weighting is enabled, first find the minimum total trials per question
+                let minTrialsPerQuestion = Infinity;
+                if (equalWeighting && selectedQuestions.length > 1) {
+                    for (let question of selectedQuestions) {
+                        if (!accuracyData[question] || !accuracyData[question][prob]) continue;
+                        
+                        const probData = accuracyData[question][prob];
+                        let questionTotalTrials = 0;
+                        
+                        for (let temp in probData) {
+                            const value = probData[temp];
+                            if (!Array.isArray(value) || value.length < 2) continue;
+                            
+                            const [correct, total] = value;
+                            if (typeof correct !== 'number' || typeof total !== 'number') continue;
+                            
+                            questionTotalTrials += total;
+                        }
+                        
+                        if (questionTotalTrials > 0) {
+                            minTrialsPerQuestion = Math.min(minTrialsPerQuestion, questionTotalTrials);
+                        }
+                    }
+                    
+                    // If no valid data found, disable equal weighting for this probability
+                    if (minTrialsPerQuestion === Infinity) {
+                        minTrialsPerQuestion = null;
+                    }
+                }
+                
                 // Aggregate results for selected questions
                 let temperatureResults = {};
                 
@@ -986,6 +1275,25 @@
                     
                     // Verify the data structure before processing
                     const probData = accuracyData[question][prob];
+                    
+                    // If equal weighting is enabled, calculate the scaling factor for this question
+                    let scalingFactor = 1;
+                    if (equalWeighting && minTrialsPerQuestion && selectedQuestions.length > 1) {
+                        let questionTotalTrials = 0;
+                        for (let temp in probData) {
+                            const value = probData[temp];
+                            if (!Array.isArray(value) || value.length < 2) continue;
+                            
+                            const [correct, total] = value;
+                            if (typeof correct !== 'number' || typeof total !== 'number') continue;
+                            
+                            questionTotalTrials += total;
+                        }
+                        
+                        if (questionTotalTrials > 0) {
+                            scalingFactor = minTrialsPerQuestion / questionTotalTrials;
+                        }
+                    }
                     
                     for (let temp in probData) {
                         const value = probData[temp];
@@ -998,11 +1306,15 @@
                         // Ensure correct and total are numbers
                         if (typeof correct !== 'number' || typeof total !== 'number') continue;
                         
+                        // Apply scaling factor if equal weighting is enabled
+                        const scaledCorrect = Math.round(correct * scalingFactor);
+                        const scaledTotal = Math.round(total * scalingFactor);
+                        
                         if (!temperatureResults[temp]) {
                             temperatureResults[temp] = [0, 0];
                         }
-                        temperatureResults[temp][0] += correct;
-                        temperatureResults[temp][1] += total;
+                        temperatureResults[temp][0] += scaledCorrect;
+                        temperatureResults[temp][1] += scaledTotal;
                     }
                 }
                 
@@ -1031,7 +1343,9 @@
                     text: sorted.map(p => {
                         const alpha = p.correct + 1;
                         const beta = (p.total - p.correct) + 1;
-                        return `Correct: ${p.correct}<br>Total: ${p.total}<br>Beta(${alpha}, ${beta})`;
+                        const weightingInfo = equalWeighting && selectedQuestions.length > 1 ? 
+                            `<br>Equal Weighting: ${minTrialsPerQuestion ? 'ON' : 'OFF'}` : '';
+                        return `Correct: ${p.correct}<br>Total: ${p.total}<br>Beta(${alpha}, ${beta})${weightingInfo}`;
                     }),
                     hovertemplate: 'Temperature: %{x}<br>Accuracy: %{y:.3f}<br>%{text}<extra></extra>'
                 });
@@ -1164,14 +1478,15 @@
                     text = '"' + text + '"';
                 }
                 
-                const max_line_length = 30; // Increased from 25 to allow more characters per line
+                // Get text line length from slider control
+                const max_line_length = parseInt(document.getElementById('textLineLength').value) || 30;
                 if (text && text.length > max_line_length) {
                     // Split text only at spaces instead of arbitrary character positions
                     const words = text.split(' ');
                     let lines = [];
                     let currentLine = '';
                     
-                    // Build lines with maximum length of ~35 characters
+                    // Build lines with maximum length from slider setting
                     words.forEach(word => {
                         if (currentLine.length + word.length + 1 <= max_line_length) {
                             currentLine += (currentLine ? ' ' : '') + word;
@@ -1326,6 +1641,360 @@
             console.log("Beta distribution traces created:", traces.length);
         }
         
+        function plotBetaDistribution2(traces) {
+            console.log("plotBetaDistribution2 called");
+            
+            // Get parameters from the input fields
+            const alpha = parseFloat(document.getElementById('betaMode2Alpha').value) || 2;
+            const beta = parseFloat(document.getElementById('betaMode2Beta').value) || 5;
+            
+            console.log("Beta Mode 2 parameters:", { alpha, beta });
+            
+            // Generate x values from 0 to 1 with fine resolution
+            const numPoints = 1000;
+            const xValues = [];
+            for (let i = 0; i <= numPoints; i++) {
+                xValues.push(i / numPoints);
+            }
+            
+            // Calculate PDF values for the distribution
+            const yValues = xValues.map(x => jStat.beta.pdf(x, alpha, beta));
+            
+            console.log("Generated PDF values, max:", Math.max(...yValues));
+            
+            // Calculate the 2.5% and 97.5% quantiles (95% confidence interval)
+            const lowerQuantile = jStat.beta.inv(0.025, alpha, beta);
+            const upperQuantile = jStat.beta.inv(0.975, alpha, beta);
+            
+            console.log("Confidence interval:", { lowerQuantile, upperQuantile });
+            
+            // Get the maximum y value for positioning vertical lines
+            const maxY = Math.max(...yValues);
+            
+            // Create filled area under the curve for the confidence interval
+            // Filter x and y values to only include the region between quantiles
+            const ciXValues = [];
+            const ciYValues = [];
+            
+            for (let i = 0; i < xValues.length; i++) {
+                if (xValues[i] >= lowerQuantile && xValues[i] <= upperQuantile) {
+                    ciXValues.push(xValues[i]);
+                    ciYValues.push(yValues[i]);
+                }
+            }
+            
+            // Add the base line to close the fill area
+            const fillX = [lowerQuantile, ...ciXValues, upperQuantile];
+            const fillY = [0, ...ciYValues, 0];
+            
+            // Add the shaded confidence interval area
+            traces.push({
+                x: fillX,
+                y: fillY,
+                type: 'scatter',
+                mode: 'none',
+                fill: 'toself',
+                fillcolor: 'rgba(0, 0, 255, 0.2)', // Same blue with transparency as the main curve
+                line: { width: 0 },
+                name: '95% CI Area',
+                showlegend: false,
+                hoverinfo: 'skip'
+            });
+            
+            // Create trace for the distribution (on top of the shaded area)
+            traces.push({
+                x: xValues,
+                y: yValues,
+                type: 'scatter',
+                mode: 'lines',
+                name: `Beta(${alpha}, ${beta})`,
+                line: {
+                    color: 'rgb(0, 0, 255)',  // Blue
+                    width: 2
+                },
+                hovertemplate: 'x: %{x:.3f}<br>PDF: %{y:.3f}<br>Beta(α=' + alpha + ', β=' + beta + ')<extra></extra>'
+            });
+            
+            // Add vertical line for 2.5% quantile
+            traces.push({
+                x: [lowerQuantile, lowerQuantile],
+                y: [0, maxY * 1.1],
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    color: 'black',
+                    dash: 'dot',
+                    width: 2
+                },
+                name: '2.5%',
+                showlegend: false,
+                hovertemplate: '2.5% quantile: %{x:.3f}<extra></extra>'
+            });
+            
+            // Add vertical line for 97.5% quantile
+            traces.push({
+                x: [upperQuantile, upperQuantile],
+                y: [0, maxY * 1.1],
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    color: 'black',
+                    dash: 'dot',
+                    width: 2
+                },
+                name: '97.5%',
+                showlegend: false,
+                hovertemplate: '97.5% quantile: %{x:.3f}<extra></extra>'
+            });
+            
+            // Calculate the mode of the beta distribution
+            let mode;
+            if (alpha > 1 && beta > 1) {
+                mode = (alpha - 1) / (alpha + beta - 2);
+            } else if (alpha <= 1 && beta > 1) {
+                mode = 0;
+            } else if (alpha > 1 && beta <= 1) {
+                mode = 1;
+            } else {
+                // Both alpha <= 1 and beta <= 1, mode is undefined or at endpoints
+                mode = 0.5; // Use midpoint as fallback
+            }
+            
+            // Calculate the PDF value at the mode
+            const modeY = jStat.beta.pdf(mode, alpha, beta);
+            
+            console.log("Mode:", { mode, modeY });
+            
+            // Add vertical line at the mode
+            traces.push({
+                x: [mode, mode],
+                y: [0, modeY],
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    color: 'red',
+                    width: 2
+                },
+                name: 'Mode',
+                showlegend: false,
+                hovertemplate: 'Mode: %{x:.3f}<extra></extra>'
+            });
+            
+            // Add dot at the peak (top of the mode line)
+            traces.push({
+                x: [mode],
+                y: [modeY],
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    color: 'red',
+                    size: 8,
+                    symbol: 'circle'
+                },
+                name: 'Peak',
+                showlegend: false,
+                hovertemplate: 'Peak: (%{x:.3f}, %{y:.3f})<extra></extra>'
+            });
+            
+            // Add dot at the bottom (base of the mode line)
+            traces.push({
+                x: [mode],
+                y: [0],
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    color: 'red',
+                    size: 8,
+                    symbol: 'circle'
+                },
+                name: 'Mode Base',
+                showlegend: false,
+                hovertemplate: 'Mode: %{x:.3f}<extra></extra>'
+            });
+            
+            // Add annotation for the confidence interval (positioned higher)
+            const midPoint = (lowerQuantile + upperQuantile) / 2;
+            const annotationY = maxY * 1.2; // Positioned higher (was 0.8, now 0.9)
+            
+            // The annotation will be added in the layout, not here
+            // Store the annotation data for later use
+            traces.confidenceIntervalAnnotation = {
+                x: midPoint,
+                y: annotationY,
+                text: '95% confidence interval',
+                showarrow: false,
+                font: {
+                    size: 14,
+                    color: 'black'
+                },
+                xanchor: 'center',
+                yanchor: 'middle'
+            };
+            
+            // Store the mode annotation data for later use (positioned within plot area)
+            traces.modeAnnotation = {
+                x: mode,
+                y: modeY * 0.5, // Position at half the peak height within the plot
+                text: `â = ${mode.toFixed(3)}`,
+                showarrow: true,
+                arrowhead: 2,
+                arrowsize: 1,
+                arrowwidth: 2,
+                arrowcolor: 'red', // Red arrow
+                ax: 28, // Arrow offset horizontally
+                ay: -30, // Arrow offset vertically (points to peak)
+                font: {
+                    size: 14,
+                    color: 'red' // Red text
+                },
+                xanchor: 'left',
+                yanchor: 'middle'
+            };
+            
+            console.log("Beta distribution 2 traces created:", traces.length);
+        }
+        
+        function plotHistogramData(traces, selectedCategories) {
+            console.log("plotHistogramData called with:", {
+                selectedCategories,
+                histogramData: JSON.stringify(histogramData).substring(0, 100) + "..."
+            });
+            
+            // Get histogram parameters
+            const binSize = parseInt(document.getElementById('histogramBinSize').value) || 400;
+            const normalize = document.getElementById('histogramNormalize').checked;
+            const overlay = document.getElementById('histogramOverlay').checked;
+            const opacity = parseFloat(document.getElementById('histogramOpacity').value) || 0.7;
+            
+            console.log("Histogram parameters:", { binSize, normalize, overlay, opacity });
+            
+            // Get color stops based on current scheme
+            const colorStops = getColorStops();
+
+            // Function to interpolate between colors
+            function interpolateColor(value) {
+                // Find the color stops that bound our value
+                for (let i = 0; i < colorStops.length - 1; i++) {
+                    if (value >= colorStops[i].pos && value <= colorStops[i + 1].pos) {
+                        const t = (value - colorStops[i].pos) / (colorStops[i + 1].pos - colorStops[i].pos);
+                        const rgb = colorStops[i].color.map((start, j) => {
+                            const end = colorStops[i + 1].color[j];
+                            return Math.round(start + (end - start) * t);
+                        });
+                        return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                    }
+                }
+                return `rgb(${colorStops[colorStops.length - 1].color.join(',')})`;
+            }
+            
+            // Find the overall range of data to create consistent bins
+            let allValues = [];
+            for (let category of selectedCategories) {
+                if (histogramData[category] && Array.isArray(histogramData[category])) {
+                    allValues = allValues.concat(histogramData[category]);
+                }
+            }
+            
+            if (allValues.length === 0) {
+                console.log("No data to plot");
+                return;
+            }
+            
+            const minValue = Math.min(...allValues);
+            const maxValue = Math.max(...allValues);
+            console.log("Data range:", { minValue, maxValue, totalDataPoints: allValues.length });
+            
+            // Create bins starting from 0 with the specified bin size
+            const numBins = Math.ceil(maxValue / binSize) + 1;
+            const binEdges = [];
+            for (let i = 0; i <= numBins; i++) {
+                binEdges.push(i * binSize);
+            }
+            
+            console.log("Bin configuration:", { numBins, binSize, binEdges: binEdges.slice(0, 5) + "..." });
+            
+            // Create histogram for each selected category
+            let fillTraces = [];
+            let outlineTraces = [];
+            
+            for (let i = 0; i < selectedCategories.length; i++) {
+                const category = selectedCategories[i];
+                
+                if (!histogramData[category] || !Array.isArray(histogramData[category])) {
+                    console.log(`Skipping category ${category}: invalid data`);
+                    continue;
+                }
+                
+                const values = histogramData[category];
+                console.log(`Processing category ${category} with ${values.length} values`);
+                
+                // Normalize position for color interpolation
+                const normalizedPos = selectedCategories.length === 1 ? 0.5 : 1 - (i / (selectedCategories.length - 1));
+                const color = interpolateColor(normalizedPos);
+                
+                // Create filled histogram trace
+                const fillTrace = {
+                    x: values,
+                    type: 'histogram',
+                    name: category,
+                    marker: {
+                        color: color.replace('rgb', 'rgba').replace(')', `, ${opacity})`),
+                        line: {
+                            color: 'rgba(255,255,255,1.0)',
+                            width: 1
+                        }
+                    },
+                    xbins: {
+                        start: 0,
+                        end: binEdges[binEdges.length - 1],
+                        size: binSize
+                    },
+                    histnorm: normalize ? 'probability density' : '',
+                    hovertemplate: normalize ? 
+                        'Response Length: %{x}<br>Density: %{y:.4f}<br>Category: ' + category + '<extra></extra>' :
+                        'Response Length: %{x}<br>Count: %{y}<br>Category: ' + category + '<extra></extra>'
+                };
+                
+                // Create outline-only trace
+                const outlineTrace = {
+                    x: values,
+                    type: 'histogram',
+                    name: category + ' (outline)',
+                    showlegend: false,
+                    marker: {
+                        color: 'rgba(0,0,0,0)',  // Transparent fill
+                        line: {
+                            color: 'rgba(255,255,255,1.0)',
+                            width: 1
+                        }
+                    },
+                    xbins: {
+                        start: 0,
+                        end: binEdges[binEdges.length - 1],
+                        size: binSize
+                    },
+                    histnorm: normalize ? 'probability density' : '',
+                    hoverinfo: 'skip'  // Don't show hover for outline traces
+                };
+                
+                fillTraces.push(fillTrace);
+                outlineTraces.push(outlineTrace);
+                console.log(`Added histogram traces for category ${category}`);
+            }
+            
+            // Add fill traces in reverse order so blue (first category) overlays last
+            for (let i = fillTraces.length - 1; i >= 0; i--) {
+                traces.push(fillTraces[i]);
+            }
+            
+            // Add all outline traces last so they appear on top
+            for (let outlineTrace of outlineTraces.reverse()) {
+                traces.push(outlineTrace);
+            }
+            
+            console.log("Histogram traces created:", traces.length);
+        }
+        
         function selectAll(type) {
             const selector = type === 'questions' ? '#questionList' : '#probList';
             document.querySelectorAll(`${selector} input[type="checkbox"]`).forEach(cb => cb.checked = true);
@@ -1468,6 +2137,16 @@
                 document.getElementById('barWidthValue').textContent = val;
             };
             
+            // Function to update histogram opacity value display
+            window.updateHistogramOpacityValue = function(val) {
+                document.getElementById('histogramOpacityValue').textContent = val;
+            };
+            
+            // Function to update text line length value display
+            window.updateTextLineLengthValue = function(val) {
+                document.getElementById('textLineLengthValue').textContent = val;
+            };
+            
             // Function to toggle bar chart mode
             window.toggleBarChartMode = function() {
                 const toggleLabel = document.getElementById('barChartToggleLabel');
@@ -1561,6 +2240,76 @@
                 updatePlot();
             };
             
+            // Load sample histogram data function
+            window.loadSampleHistogramData = function() {
+                console.log("Loading sample histogram data...");
+                
+                // Sample histogram data structure - response lengths for different categories
+                const sampleData = {
+                    "Low Temperature": [
+                        450, 523, 678, 892, 765, 543, 432, 567, 689, 745,
+                        834, 912, 656, 478, 589, 723, 845, 567, 623, 789,
+                        432, 654, 876, 543, 678, 789, 456, 567, 823, 945,
+                        678, 543, 789, 612, 734, 856, 567, 689, 745, 823,
+                        456, 678, 789, 612, 745, 867, 589, 723, 845, 967
+                    ],
+                    "Medium Temperature": [
+                        1200, 1456, 1789, 2134, 1567, 1823, 1345, 1678, 1912, 2245,
+                        1456, 1789, 2023, 1567, 1834, 2156, 1789, 2012, 1645, 1923,
+                        1567, 1834, 2156, 1789, 2012, 1645, 1923, 2267, 1834, 2156,
+                        1456, 1789, 2023, 1567, 1834, 2156, 1789, 2012, 1645, 1923,
+                        1234, 1567, 1890, 2123, 1456, 1789, 2012, 1645, 1923, 2267
+                    ],
+                    "High Temperature": [
+                        2400, 2789, 3156, 3523, 3890, 4257, 3624, 3991, 4358, 4725,
+                        2834, 3201, 3568, 3935, 4302, 3669, 4036, 4403, 4770, 5137,
+                        3267, 3634, 4001, 4368, 4735, 4102, 4469, 4836, 5203, 5570,
+                        3700, 4067, 4434, 4801, 5168, 4535, 4902, 5269, 5636, 6003,
+                        4133, 4500, 4867, 5234, 5601, 4968, 5335, 5702, 6069, 6436
+                    ]
+                };
+                
+                // Set the histogram data
+                histogramData = sampleData;
+                accuracyData = null;
+                tokenData = null;
+                injectionData = null;
+                
+                // Update UI
+                document.getElementById('dataStructureToggle').checked = false;
+                document.getElementById('toggleLabel').textContent = "Histogram Data";
+                document.getElementById('questionSection').style.display = 'block';
+                if (document.getElementById('barChartToggle')) {
+                    document.getElementById('barChartToggle').checked = false;
+                    document.getElementById('barChartToggle').parentElement.style.display = 'block';
+                }
+                
+                // Show histogram controls
+                document.getElementById('histogramControls').style.display = 'block';
+                
+                // Create category checkboxes (treated as questions)
+                const questionList = document.getElementById('questionList');
+                questionList.innerHTML = '';
+                
+                for (let category in histogramData) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label>
+                            <input type="checkbox" value="${category}" onclick="updatePlot()" checked>
+                            <span>${category}</span>
+                        </label>
+                    `;
+                    questionList.appendChild(div);
+                }
+                
+                // Clear probability list for histogram data
+                const probList = document.getElementById('probList');
+                probList.innerHTML = '';
+                
+                console.log("Sample histogram data loaded, updating plot...");
+                updatePlot();
+            };
+            
             // Add sample injection data button
             const loadSampleInjectionButton = document.createElement('button');
             loadSampleInjectionButton.textContent = "Load Sample Injection Data";
@@ -1577,6 +2326,22 @@
             // Insert after sample token data button
             const loadSampleButton = document.querySelector('.controls button');
             loadSampleButton.parentNode.insertBefore(loadSampleInjectionButton, loadSampleButton.nextSibling);
+            
+            // Add sample histogram data button
+            const loadSampleHistogramButton = document.createElement('button');
+            loadSampleHistogramButton.textContent = "Load Sample Histogram Data";
+            loadSampleHistogramButton.style.marginTop = "10px";
+            loadSampleHistogramButton.style.width = "100%";
+            loadSampleHistogramButton.style.padding = "8px";
+            loadSampleHistogramButton.style.backgroundColor = "#FF5722";
+            loadSampleHistogramButton.style.color = "white";
+            loadSampleHistogramButton.style.border = "none";
+            loadSampleHistogramButton.style.borderRadius = "4px";
+            loadSampleHistogramButton.style.cursor = "pointer";
+            loadSampleHistogramButton.onclick = window.loadSampleHistogramData;
+            
+            // Insert after sample injection data button
+            loadSampleButton.parentNode.insertBefore(loadSampleHistogramButton, loadSampleInjectionButton.nextSibling);
         });
     </script>
 </body>
