@@ -1,6 +1,6 @@
 # Doubt Injection
 
-*As part of MEng project "Mitigating Hallucinations in LLMs", supervised by Dr Marcus Tomalin*
+*As part of MEng project "Mitigating Hallucinations in LLMs"*
 
 **arXiv paper:** (link coming soon)
 
